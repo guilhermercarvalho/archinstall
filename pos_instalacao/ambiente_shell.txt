@@ -1,0 +1,6 @@
+# ---------------------------------------------------------------------- #
+# variavel ambiente GitHub
+export GIT_FOLDER=""
+
+alias openGIT="cd '$GIT_FOLDER'"
+alias codeGIT="code '$GIT_FOLDER'"
