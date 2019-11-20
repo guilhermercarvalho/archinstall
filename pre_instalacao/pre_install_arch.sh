@@ -179,6 +179,8 @@ passwd
 echo "Configure o boot da máquina"
 pacman -S grub os-prober
 
+grub-install /dev/sda
 
+grub-mkconfig -o /boot/grub/grub.cfg
 
 exit 0
