@@ -136,10 +136,10 @@ timedatectl set-ntp true
 cfdisk
 
 # Formata partições
-mkfs.ext4 /dev/sda2
+mkfs.ext4 /dev/sda1
 
 # Montar sistema
-mount /dev/sda2 /mnt
+mount /dev/sda1 /mnt
 
 # Instala Arch
 pacstrap /mnt base base-devel
