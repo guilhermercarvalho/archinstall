@@ -88,7 +88,7 @@ else
     echo
     echo "Execute install_iso_arch.sh"
     echo
-
+fi
 #######################################################################################
 # 
 #                               Iniciando Instalação
@@ -133,7 +133,22 @@ echo "Atualizando relógio..."
 timedatectl set-ntp true
 
 # Paticiona disco
+cfdisk
 
+# Formata partições
+mkfs.ext4 /dev/sda2
+
+# Montar sistema
+mount /dev/sda2 /mnt
+
+# Instala Arch
+pacstrap /mnt base base-devel
+
+genfstab /mnt >> /mnt/etc/fstab
+
+cat /mnt/etc/fstab
+
+arch-chroot /mnt /bin/bash
 
 # Define fuso horário
 echo "Setar TIMEZONE"
@@ -162,4 +177,8 @@ passwd
 
 # Configura gerenciador de boot do sistema
 echo "Configure o boot da máquina"
+pacman -S grub os-prober
+
+
+
 exit 0
