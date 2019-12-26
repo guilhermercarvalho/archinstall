@@ -8,7 +8,7 @@
 #
 # -------------------------------------------------------------------------------------
 #
-# Este programa executa a instalção do Arch Linux em seu sistema
+# Este programa executa a pré-instalção do Arch Linux em seu sistema
 #
 # -------------------------------------------------------------------------------------
 #
@@ -19,22 +19,6 @@
 #
 #
 # Licença: -
-#
-#
-#######################################################################################
-#
-#                                     Menssagem
-#                                     ---------
-#
-echo '-------------------------------------------------------------------------------'
-echo '     ____               ____           __        ____   ___              __    '
-echo '    / __ \________     /  _/___  _____/ /_____ _/ / /  /   |  __________/ /_   '
-echo '   / /_/ / ___/ _ \    / // __ \/ ___/ __/ __ `/ / /  / /| | / ___/ ___/ __ \  '
-echo '  / ____/ /  /  __/  _/ // / / (__  ) /_/ /_/ / / /  / ___ |/ /  / /__/ / / /  '
-echo ' /_/   /_/   \___/  /___/_/ /_/____/\__/\__,_/_/_/  /_/  |_/_/   \___/_/ /_/   '
-echo '                                                                               '
-echo '                 Por Guilherme Carvalho - https://github.com/guilhermercarvalho'
-echo '-------------------------------------------------------------------------------'
 #
 #
 #######################################################################################
@@ -55,132 +39,244 @@ echo '--------------------------------------------------------------------------
 #       $BOOT_UFEI          Suporte para boot do tipo UEFI
 #       $BOOT_LEGACY        Suporte para boot do tipo LEGACY
 #
-# -------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------
 #
+#                               Cores para exibição
+#                               ----- ---- --------
+#       red e red_full      vermelho    e   vermelho_completo
+#       grn e grn_full      verde       e   verde_completo
+#       yel e yel_full      amarelo     e   amarelo_completo
+#       blu e blu_full      azul        e   azul_completo
+#       mag e mag_full      magenta     e   magenta_completo
+#       cyn e cyn_full      ciano       e   ciano_completo
+#
+#       end                 fim
+#
+# --------------------------------------------------------------------------------------
+# Configuração
 IDIOMA_TECLADO=$(find /usr/share/kbd/keymaps/**/* -iname br-abnt2.map.gz | head -n 1)
 TIMEZONE=$(find /usr/share/zoneinfo/**/* -iname Sao_Paulo | head -n 1)
 NOME_HOST="arch"
+
+# Boot do sistema
 BOOT_UFEI=0
 BOOT_LEGACY=0
-PRE_CONFIGURADO=1
 
+# Cores
+red_full=$'\e[1;31m%s\e[0m\n'
+grn_full=$'\e[1;32m%s\e[0m\n'
+yel_full=$'\e[1;33m%s\e[0m\n'
+blu_full=$'\e[1;34m%s\e[0m\n'
+mag_full=$'\e[1;35m%s\e[0m\n'
+cyn_full=$'\e[1;36m%s\e[0m\n'
+
+red=$'\e[1;31m'
+grn=$'\e[1;32m'
+yel=$'\e[1;33m'
+blu=$'\e[1;34m'
+mag=$'\e[1;35m'
+cyn=$'\e[1;36m'
+end=$'\e[0m'
+#
+#
+#######################################################################################
+#
+#                                          Funções
+#                                          -------
+#
+_ler_resposta() {
+    if [[ ${resposta} =~ ^[sS]([iI][mM])*$ || ${resposta} = "" ]]; then
+        return 0
+    else
+        return -1
+    fi
+}
+
+_fim_msg() {
+    echo
+    echo '-------------------------------------------------------------------------------'
+    echo
+}
+
+_ping_internet() {
+    echo "################################"
+    echo "# Testando conexão internet... #"
+    echo "################################"
+    echo
+    ping -c 4 -q archlinux.org
+    if [ $? -eq 0 ]; then
+        printf "${grn_full}" "Conexão ativa!"
+        return 0
+    else
+        printf "${red_full}" "Conexão inativa!"
+        return -1
+    fi
+}
+#
+#
+#######################################################################################
+#
+#                                     Menssagem
+#                                     ---------
+#
+echo '-------------------------------------------------------------------------------'
+echo '     ____               ____           __        ____   ___              __    '
+echo '    / __ \________     /  _/___  _____/ /_____ _/ / /  /   |  __________/ /_   '
+echo '   / /_/ / ___/ _ \    / // __ \/ ___/ __/ __ `/ / /  / /| | / ___/ ___/ __ \  '
+echo '  / ____/ /  /  __/  _/ // / / (__  ) /_/ /_/ / / /  / ___ |/ /  / /__/ / / /  '
+echo ' /_/   /_/   \___/  /___/_/ /_/____/\__/\__,_/_/_/  /_/  |_/_/   \___/_/ /_/   '
+echo '                                                                               '
+echo '                 Por Guilherme Carvalho - https://github.com/guilhermercarvalho'
+echo '-------------------------------------------------------------------------------'
+echo
+#
+#
 #######################################################################################
 #
 #                                Messagem de Boas-Vindas
 #                                -------- -- -----------
 #
-echo "Bem-Vindo a Pré-Configuração Inicial de Instalação do Arch Linux"
-echo
-echo "Este programa pressupõe que você tenha baixado, bootado e inciado a ISO do sistema."
-read -p "Correto?[S/n] " resposta
-if [[ $resposta =~ ^[sS]([iI][mM])*$ ]]; then
-    resposta=
-    echo
-    echo "Perfeito! Deseja definir explicitamente os parâmetos de instalação?[S/n] "
-    read resposta
-    if [[ $resposta =~ ^[sS]([iI][mM])*$ ]]; then
-        resposta=
-        echo
-        echo "OK!"
-        PRE_CONFIGURADO=0
-    fi
-else
-    echo
-    echo "Execute install_iso_arch.sh"
-    echo
-fi
+echo "####################################################################"
+echo "#                                                                  #"
+echo "# Bem-Vindo a Pré-Configuração Inicial de Instalação do Arch Linux #"
+echo "#                                                                  #"
+echo "####################################################################"
+_fim_msg
+#
+#
 #######################################################################################
 # 
 #                               Iniciando Instalação
 #                               --------- ----------
 #
 # Define layout do teclado
-echo "Definindo Teclado para padrão ABNT2"
-loadkeys $IDIOMA_TECLADO
+echo "#######################################"
+echo "# Teclado definido para padrão ABNT2 #"
+echo "#######################################"
+_fim_msg
+loadkeys ${IDIOMA_TECLADO}
 
-# Define tipo de boot disponível (Legacy ou UEFI)
-if [ -d ls /sys/firmware/efi/efivars ]; then
-    echo "Sua máquina está configurada com o sistema UEFI"
+# Define tipo de boot disponível (UEFI ou Legacy)
+if [ -d /sys/firmware/efi/efivars ]; then
+    echo "###################"
+    printf "%s\n" "# UEFI ${grn}disponível${end} #"
+    echo "###################"
     BOOT_UFEI=1
 else
-    echo "Sua máquina está configurada com o sistema Legacy"
+    echo "####################################"
+    printf "%s\n" "# UEFI ${red}indisponível${end}, usando ${yel}LEGACY${end} #"
+    echo "####################################"
     BOOT_LEGACY=1
 fi
+_fim_msg
 
-# Testa conexão com rede
-echo "Testando conexão internet..."
-ping -c 4 -q archlinux.org
-if [ $? -eq 0 ]; then
-    echo "Conexão ativa!"
-else
-    echo "Conexão inativa!"
+# Verifica conexão com internet
+_ping_internet
+
+# Conecta uma interface à uma rede
+if [ $? -ne 0 ]; then
+    _fim_msg
+    echo 'Selecione um interface de rede:'
+    ip -o link show | awk -F': ' '{print $2}'
     echo
-    echo "Vamos tentar realizar uma conexão utilizando o camando dhcpcd? Sim!"
-    echo
-    ip link show
-    echo
-    echo "Selecione o número de sua interface Ethernet:"
-    read num_interface
-    interface_rede=$(ip link show | grep ""$num_interface":" | cut -d\: -f2 | tr -d " ")
-    echo "Interface selecionada: "$interface_rede""
-    dhcpcd "$interface_rede"
-    ping -c 4 -q archlinux.org
-    test $? -eq 0 && echo "Conexão ativa!" || echo "Conexão ainda inativa!"
+    read -p "Interface selecionada: " interface_rede
+    dhcpcd "${interface_rede}"
+    unset interface_rede
+    _fim_msg
+
+    _ping_internet
+
+    if [ $? -ne 0 ]; then
+        _fim_msg
+        printf "${red_full}" "FALHA NA CONECXÃO"
+        printf "${red_full}" "SAINDO DO PROGRAMA..."
+        exit -1
+    fi
 fi
+_fim_msg
 
-# Atualiza relógio do sistema
-echo "Atualizando relógio..."
+# Atualização do relógio do sistema
+echo "#################################"
+echo "# Relógio do sistema atualizado #"
+echo "#################################"
+_fim_msg
 timedatectl set-ntp true
 
-# Paticiona disco
+# Paticionamento de disco
+echo "#############################################"
+echo "#        Criando partições em disco         #"
+echo "#                                           #"
+echo "# /dev/sda: SSD                             #"
+echo "# /dev/sda1: EFI partição de boot - 260 MiB #"
+echo "# /dev/sda2: Linux filesystem - +20 GiB     #"
+echo "#                                           #"
+echo "#                            *Recomendação  #"
+echo "#############################################"
+_fim_msg
 cfdisk
 
-# Formata partições
-mkfs.ext4 /dev/sda1
+# Lista partições criadas
+fdisk -l
+_fim_msg
+
+# Formatar partições
+read -p "/dev/sda1: EFI System?[S/n]" resposta
+_ler_resposta
+if [ $? -eq 0 ]; then
+    mkfs.fat -F32 /dev/sda1
+fi
+_fim_msg
+
+read -p "/dev/sda2: Linux filesystem?[S/n]" resposta
+_ler_resposta
+if [ $? -eq 0 ]; then
+    mkfs.ext4 /dev/sda2
+fi
+_fim_msg
 
 # Montar sistema
-mount /dev/sda1 /mnt
+echo "############################"
+echo "# Montando raíz do sistema #"
+echo "############################"
+mount /dev/sda2 /mnt
+_fim_msg
 
-# Instala Arch
+# Atualizando pacman e instalando reflector
+echo "########################"
+echo "# Instalando reflector #"
+echo "########################"
+pacman -Syyuu reflector --noconfirm
+_fim_msg
+
+echo "####################################"
+echo "# Procurando por melhores espelhos #"
+echo "####################################"
+reflector --country Brazil --age 12 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
+_fim_msg
+
+# Instalar Arch em disco
+echo "#######################################"
+echo "# Instalando arch em novo dispositivo #"
+echo "#######################################"
 pacstrap /mnt base base-devel
+_fim_msg
 
+# Gerendo arquivo fstab
+echo "#########################"
+echo "# Gerendo arquivo fstab #"
+echo "#########################"
 genfstab /mnt >> /mnt/etc/fstab
+_fim_msg
 
+# Exibindo arquivo fstab gerado
 cat /mnt/etc/fstab
+_fim_msg
 
-arch-chroot /mnt /bin/bash
+# Fim da pré-instação
+echo "#########################"
+echo "# FIM DA PRÉ-INSTALAÇÃO #"
+echo "#########################"
+_fim_msg
 
-# Define fuso horário
-echo "Setar TIMEZONE"
-ln -sf "$TIMEZONE" /etc/localtime # São Paulo por padrão
-hwclock --systohc
-
-# Define idioma do sistema e do teclado
-echo "Definir localização e idioma"
-sed -i 's:#pt_BR.UTF-8 UTF-8:pt_BR.UTF-8 UTF-8 ; s:#pt_BR ISO-8859-1:pt_BR ISO-8859-1': /etc/locale.gen
-locale-gen
-echo "LANG=pt_BR.UTF-8" >> /etc/locale.conf
-echo "KEYMAP="$IDIOMA_TECLADO"" >> /etc/vconsole.conf
-
-# Configura etc/hostname
-echo "Configurar Internet"
-echo "$NOME_HOST" >> /etc/hostname
-echo -e "127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t"$NOME_HOST".localdomain "$NOME_HOST"" >> /etc/hosts
-
-# Atualiza Sistema
-echo "Update Pacman System"
-pacman -Syyuu
-
-# Define senha de root
-echo "Definir senha de root"
-passwd
-
-# Configura gerenciador de boot do sistema
-echo "Configure o boot da máquina"
-pacman -S grub os-prober
-
-grub-install /dev/sda
-
-grub-mkconfig -o /boot/grub/grub.cfg
-
+echo "Execute o camando: arch-chroot /mnt"
 exit 0
