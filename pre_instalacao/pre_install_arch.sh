@@ -112,6 +112,11 @@ _ping_internet() {
         return -1
     fi
 }
+
+_espera_confimacao() {
+    echo "Continuar?"
+    read
+}
 #
 #
 #######################################################################################
@@ -213,6 +218,7 @@ echo "#                                           #"
 echo "#                            *Recomendação  #"
 echo "#############################################"
 _fim_msg
+_espera_confimacao
 cfdisk
 
 # Lista partições criadas
@@ -240,12 +246,12 @@ echo "# Montando raíz do sistema #"
 echo "############################"
 mount /dev/sda2 /mnt
 _fim_msg
-
+_espera_confimacao
 # Atualizando pacman e instalando reflector
 echo "########################"
 echo "# Instalando reflector #"
 echo "########################"
-pacman -Syyuu reflector --noconfirm
+pacman -Syyuu reflector
 _fim_msg
 
 echo "####################################"

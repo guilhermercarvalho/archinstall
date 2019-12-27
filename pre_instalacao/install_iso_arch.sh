@@ -56,7 +56,7 @@ do
             l=$(curl -s http://archlinux.c3sl.ufpr.br/iso/latest/ |
             grep -Eo '\"archlinux-20..\..([1-9]|[10-12])\..([1-9]|[10-31])-x86_64.iso\"' |
             cut -d\" -f2)               
-            wget -c -O archlinux-x86_64.iso http://archlinux.c3sl.ufpr.br/iso/latest/"$l"
+            wget -c -O ${HOME}/archlinux-x86_64.iso http://archlinux.c3sl.ufpr.br/iso/latest/"${l}"
             ;;
         2)  echo "### Etapa 2 ###"
             echo "Este processo irá apagar por completo seu dispositivo."
