@@ -251,13 +251,14 @@ _espera_confimacao
 echo "########################"
 echo "# Instalando reflector #"
 echo "########################"
-pacman -Syyuu reflector
+pacman -S reflector --noconfirm
 _fim_msg
 
 echo "####################################"
 echo "# Procurando por melhores espelhos #"
 echo "####################################"
 reflector --country Brazil --age 12 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
+pacman -Syyuu
 _fim_msg
 
 # Instalar Arch em disco
