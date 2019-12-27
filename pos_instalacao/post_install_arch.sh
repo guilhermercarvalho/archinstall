@@ -31,57 +31,7 @@ echo '                                                                          
 echo '                     Por Guilherme Carvalho - https://github.com/guilhermercarvalho'
 echo '-----------------------------------------------------------------------------------'
 
-testa_ping(){
-    light_red='\e[1;91m%s\e[0m\n'
-    light_green='\e[1;92m%s\e[0m\n'  
-    retorno=true
 
-    echo
-    echo "Testando ping..."
-    ping -c 4 -q ufms.br                     
-    status="$?"
-
-    if [ $status -eq 0 ]; then
-      printf "$light_green" "[ CONNECTION AVAILABLE ]"
-    else
-      printf "$light_red" "[ HOST DISCONNECTED ]"
-    fi
-    echo
-    return $status
-}
-
-# verifica conexão com internet
-echo "Antes de iniciar é necessário que você esteja conectado à internet."
-read -p "Você está conectado?[S/n] " resposta
-if [[ $resposta =~ ^[sSyY](im|es)*$ ]]; then
-    testa_ping
-fi
-
-if [ "$?" -ne 0 ]; then
-    read -p "Deseja conectar?[S/n] " resposta
-    if [[ $resposta =~ ^[sSyY](im|es)*$ ]]; then
-        echo
-        echo "Interfaces de rede disponíveis: "
-        echo
-        ip link
-        echo
-        read -p "Digite a interface cabeada: " resposta
-        sudo dhcpcd $resposta
-        testa_ping
-    else
-        exit 0
-    fi
-    
-    if [ "$?" -ne 0 ]; then
-    echo "Verifique sua conexão antes de continuar!"
-    exit 0
-    fi
-fi
-
-# seleciona mirrors mais próximos
-echo "Selecionando Mirrors mais próximos..."
-sudo pacman -S reflector --noconfirm
-reflector --country Brazil --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 # instala interfaces
 echo "Selecione a interface gráfica a ser instalada (Apenas o número):"

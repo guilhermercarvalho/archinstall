@@ -23,28 +23,15 @@ ler_resposta() {
     fi
 }
 
-read -p "Correto?[S/n] " resposta
-ler_resposta
-if [ $? -eq 0 ]; then
-    printf "$cyn_full" "Sim"
-    echo "# UEFI indisponível, usando LEGACY #"
-    printf "%s\n" "# UEFI "${red}"indisponível${end}, usando ${red}LEGACY${end} #"
-    printf "%s\n" "Text in ${red}red${end}, white and ${blu}blue${end}."
-else
-    echo "Nao"
-fi
 
-if [ -d /sys/firmware/efi/efivars ]; then
-    echo "###################"
-    printf "%s\n" "# ${blu}UEFI${end} ${grn}disponível${end} #"
-    echo "###################"
+continuar=0
+while [ ${continuar} -eq 0 ]; do
+    read -p "Continuar?[0/1]" resposta
+    if [ ${resposta} -eq 0 ]; then
+        continue
+    else
+        echo "continuar=1"
+        continuar=1
+    fi
+done
 
-    BOOT_UFEI=1
-else
-    echo "####################################"
-    printf "%s\n" "# ${blu}UEFI${end} ${red}indisponível${end}, usando ${yel}LEGACY${end} #"
-    echo "####################################"
-
-    BOOT_LEGACY=1
-fi
-fim_msg

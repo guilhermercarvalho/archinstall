@@ -23,20 +23,9 @@
 #
 #######################################################################################
 #
-#                                     Configuração
-#                                     ------------
-#
-# Configuração das variáveis de ambiente
-#
-#       $IDIOMA_TECLADO     Keymap utilizado, padrão "br-abnt2").
-#       $TIMEZONE           Configura fuso, padrão "Sao_Paulo".
-#       $NOME_HOST          Nome da máquina.
-# 
-# --------------------------------------------------------------------------------------
-#   
 #                                  Tipo de Boot
 #                                  ---- -- ----
-#       $BOOT_UFEI          Suporte para boot do tipo UEFI
+#       $BOOT_EFI          Suporte para boot do tipo UEFI
 #       $BOOT_LEGACY        Suporte para boot do tipo LEGACY
 #
 # --------------------------------------------------------------------------------------
@@ -53,13 +42,8 @@
 #       end                 fim
 #
 # --------------------------------------------------------------------------------------
-# Configuração
-IDIOMA_TECLADO=$(find /usr/share/kbd/keymaps/**/* -iname br-abnt2.map.gz | head -n 1)
-TIMEZONE=$(find /usr/share/zoneinfo/**/* -iname Sao_Paulo | head -n 1)
-NOME_HOST="arch"
-
 # Boot do sistema
-BOOT_UFEI=0
+BOOT_EFI=0
 BOOT_LEGACY=0
 
 # Cores
@@ -96,7 +80,7 @@ _fim_msg() {
     echo
     echo '-------------------------------------------------------------------------------'
     echo
-    sleep 3
+    sleep 2
 }
 
 _ping_internet() {
@@ -117,6 +101,47 @@ _ping_internet() {
 _espera_confimacao() {
     echo "Continuar?"
     read
+}
+
+_efi_system() {
+    # Formatar partições
+    read -p "/dev/sda1: EFI System?[S/n]" resposta
+    _ler_resposta
+    if [ $? -eq 0 ]; then
+        mkfs.fat -F32 /dev/sda1
+    fi
+    _fim_msg
+
+    read -p "/dev/sda2: Linux filesystem?[S/n]" resposta
+    _ler_resposta
+    if [ $? -eq 0 ]; then
+        mkfs.ext4 /dev/sda2
+    fi
+    _fim_msg
+
+    # Montar sistema
+    echo "############################"
+    echo "# Montando raíz do sistema #"
+    echo "############################"
+    mount /dev/sda2 /mnt
+    mkdir -p /mnt/boot
+    mount /dev/sda1 /mnt/boot
+}
+
+_legacy_system() {
+    # Formatar partições
+    read -p "/dev/sda1: Linux filesystem?[S/n]" resposta
+    _ler_resposta
+    if [ $? -eq 0 ]; then
+        mkfs.ext4 /dev/sda1
+    fi
+    _fim_msg
+
+    # Montar sistema
+    echo "############################"
+    echo "# Montando raíz do sistema #"
+    echo "############################"
+    mount /dev/sda1 /mnt
 }
 #
 #
@@ -152,22 +177,15 @@ _fim_msg
 #
 #######################################################################################
 # 
-#                               Iniciando Instalação
-#                               --------- ----------
+#                               Início Pré-Instalação
+#                               ------ --------------
 #
-# Define layout do teclado
-echo "#######################################"
-echo "# Teclado definido para padrão ABNT2 #"
-echo "#######################################"
-_fim_msg
-loadkeys ${IDIOMA_TECLADO}
-
 # Define tipo de boot disponível (UEFI ou Legacy)
 if [ -d /sys/firmware/efi/efivars ]; then
     echo "###################"
     printf "%s\n" "# UEFI ${grn}disponível${end} #"
     echo "###################"
-    BOOT_UFEI=1
+    BOOT_EFI=1
 else
     echo "####################################"
     printf "%s\n" "# UEFI ${red}indisponível${end}, usando ${yel}LEGACY${end} #"
@@ -216,7 +234,7 @@ echo "# /dev/sda: SSD                             #"
 echo "# /dev/sda1: EFI partição de boot - 260 MiB #"
 echo "# /dev/sda2: Linux filesystem - +20 GiB     #"
 echo "#                                           #"
-echo "#                            *Recomendação  #"
+echo "#                            *recomendação  #"
 echo "#############################################"
 _fim_msg
 _espera_confimacao
@@ -226,28 +244,15 @@ cfdisk
 fdisk -l
 _fim_msg
 
-# Formatar partições
-read -p "/dev/sda1: EFI System?[S/n]" resposta
-_ler_resposta
-if [ $? -eq 0 ]; then
-    mkfs.fat -F32 /dev/sda1
+# Configurações necessárias para sistemas efi e legacy
+if [ ${BOOT_EFI} -eq 1 ]; then
+    _efi_system
+elif [ ${BOOT_LEGACY} -eq 1 ]; then
+    _legacy_system
 fi
-_fim_msg
-
-read -p "/dev/sda2: Linux filesystem?[S/n]" resposta
-_ler_resposta
-if [ $? -eq 0 ]; then
-    mkfs.ext4 /dev/sda2
-fi
-_fim_msg
-
-# Montar sistema
-echo "############################"
-echo "# Montando raíz do sistema #"
-echo "############################"
-mount /dev/sda2 /mnt
 _fim_msg
 _espera_confimacao
+
 # Atualizando pacman e instalando reflector
 echo "########################"
 echo "# Instalando reflector #"
@@ -266,7 +271,7 @@ _fim_msg
 echo "#######################################"
 echo "# Instalando arch em novo dispositivo #"
 echo "#######################################"
-pacstrap /mnt base base-devel
+pacstrap /mnt base base-devel linux linux-firmware
 _fim_msg
 
 # Gerendo arquivo fstab
@@ -279,6 +284,7 @@ _fim_msg
 # Exibindo arquivo fstab gerado
 cat /mnt/etc/fstab
 _fim_msg
+_espera_confimacao
 
 # Fim da pré-instação
 echo "#########################"
@@ -286,5 +292,5 @@ echo "# FIM DA PRÉ-INSTALAÇÃO #"
 echo "#########################"
 _fim_msg
 
-echo "Execute o camando: arch-chroot /mnt"
+echo -e "Execute o camando: arch-chroot /mnt\n"
 exit 0
