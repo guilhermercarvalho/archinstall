@@ -264,7 +264,7 @@ echo "####################################"
 echo "# Procurando por melhores espelhos #"
 echo "####################################"
 reflector --country Brazil --age 12 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
-pacman -Syyuu
+yes no | pacman -Syyuu
 _fim_msg
 
 # Instalar Arch em disco

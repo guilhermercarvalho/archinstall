@@ -64,7 +64,7 @@ _efi_system() {
 _legacy_system() {
     # Configura gerenciador de boot do sistema
     echo "Configure o boot da máquina"
-    pacman -S grub os-prober
+    pacman -S grub os-prober --noconfirm
     grub-install /dev/sda
     grub-mkconfig -o /boot/grub/grub.cfg
 }
@@ -90,7 +90,7 @@ hwclock --systohc --utc
 
 # Define idioma do sistema e do teclado
 echo "Definir localização e idioma"
-sed -i 's:#pt_BR.UTF-8 UTF-8:pt_BR.UTF-8 UTF-8 ; s:#pt_BR ISO-8859-1:pt_BR ISO-8859-1': /etc/locale.gen
+sed -i 's/#pt_BR.UTF-8 UTF-8/pt_BR.UTF-8 UTF-8/g;s/#pt_BR ISO-8859-1/pt_BR ISO-8859-1/g' /etc/locale.gen
 locale-gen
 echo "LANG=pt_BR.UTF-8" >> /etc/locale.conf
 export LANG=pt_BR.UTF-8
@@ -100,7 +100,7 @@ echo "KEYMAP="${IDIOMA_TECLADO}"" >> /etc/vconsole.conf
 echo "Configurar Internet"
 echo "$NOME_HOST" >> /etc/hostname
 echo -e "127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t"${NOME_HOST}".localdomain "${NOME_HOST}"" >> /etc/hosts
-echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" >> /etc/resolv.conf
+echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" > /etc/resolv.conf
 
 # Atualiza Sistema
 echo "Update Pacman System"

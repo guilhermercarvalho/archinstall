@@ -61,12 +61,13 @@ cd yay && makepkg -si
 cd && rm -r yay/
 
 echo "Atualiza repo"
-sudo pacman -Syyuu --noconfirm
 yay -Syyuu --noconfirm
 
 echo 'Instalando minhas aplicações pacman e yay...'
-sudo pacman -S cmatrix texlive-most flashplugin libreoffice-fresh libreoffice-fresh-pt-br linux-firmware util-linux virtualbox zsh-completions bluez bluez-utils android-tools gparted bash-completion gpick gimp inkscape lutris htop transmission-gtk vim vlc keepassxc --noconfirm
-yay -S megasync gnome-shell-pomodoro stremio-beta dropbox jdk8-openjdk openjdk8-doc openjdk8-src codecs64 discord oh-my-zsh-git pamac-aur spotify visual-studio-code-bin --noconfirm
+#pacman -S cmatrix texlive-most flashplugin libreoffice-fresh libreoffice-fresh-pt-br linux-firmware util-linux virtualbox zsh-completions bluez bluez-utils android-tools gparted bash-completion gpick gimp inkscape lutris htop transmission-gtk vim vlc keepassxc --noconfirm
+pacman -S nano vim dhcpcd --noconfirm
+#yay -S megasync gnome-shell-pomodoro stremio-beta dropbox jdk8-openjdk openjdk8-doc openjdk8-src codecs64 discord oh-my-zsh-git pamac-aur spotify visual-studio-code-bin --noconfirm
+yay -S visual-studio-code-bin --noconfirm
 
 echo "Install Audio Plugins"
 pacman -S alsa-lib alsa-utils alsa-oss pulseaudio pulseaudio-alsa
@@ -82,9 +83,9 @@ git config --global user.name "Guilherme Carvalho"
 git config --global user.email "guilhermercarvalho512@gmail.com"
 
 # confiurar chave de acesso SSH
-echo "Gerando chave de acesso SSH..."
-ssh-keygen
-echo "Copy your public key."
+#echo "Gerando chave de acesso SSH..."
+#ssh-keygen
+#echo "Copy your public key."
 
 
 
