@@ -147,8 +147,9 @@ echo "######################"
 echo "# Instalar YAY (AUR) #"
 echo "######################"
 git clone https://aur.archlinux.org/yay.git
-cd yay && sudo makepkg -si
-cd && rm -r yay/
+cd yay && makepkg -si
+cd ~
+rm -rf yay/
 yay -Syyuu --noconfirm
 _fim_msg
 

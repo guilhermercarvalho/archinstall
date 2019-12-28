@@ -133,7 +133,7 @@ echo "####################################"
 echo "# Procurando por melhores espelhos #"
 echo "####################################"
 reflector --country Brazil --age 12 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
-pacman -Syyuu nano vim bash-completion --noconfirm
+pacman -Syyuu --noconfirm
 _fim_msg
 
 # Define senha de root
@@ -148,7 +148,7 @@ echo "# Criar usuário sudo #"
 echo "######################"
 useradd -m -G wheel -s /bin/bash guilherme
 passwd guilherme
-sed -i 's/#%wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
+sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 _fim_msg
 
 systemctl enable dhcpcd.service

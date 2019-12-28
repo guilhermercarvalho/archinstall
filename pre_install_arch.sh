@@ -264,7 +264,7 @@ _fim_msg
 echo "#######################################"
 echo "# Instalando arch em novo dispositivo #"
 echo "#######################################"
-pacstrap /mnt base base-devel linux linux-firmware
+pacstrap /mnt base base-devel linux linux-firmware nano vim bash-completion dhcpcd
 _fim_msg
 
 # Gerendo arquivo fstab
