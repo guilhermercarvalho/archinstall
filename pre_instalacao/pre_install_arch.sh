@@ -121,7 +121,7 @@ _efi_system() {
 
     # Montar sistema
     echo "############################"
-    echo "# Montando raíz do sistema #"
+    echo "# Montando raíz do sistema EFI #"
     echo "############################"
     mount /dev/sda2 /mnt
     mkdir -p /mnt/boot
@@ -139,7 +139,7 @@ _legacy_system() {
 
     # Montar sistema
     echo "############################"
-    echo "# Montando raíz do sistema #"
+    echo "# Montando raíz do sistema LEGACY #"
     echo "############################"
     mount /dev/sda1 /mnt
 }
@@ -293,4 +293,5 @@ echo "#########################"
 _fim_msg
 
 echo -e "Execute o camando: arch-chroot /mnt\n"
+cp -r ./archinstall /mnt
 exit 0

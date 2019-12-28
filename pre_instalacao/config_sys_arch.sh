@@ -117,12 +117,15 @@ echo "####################################"
 echo "# Procurando por melhores espelhos #"
 echo "####################################"
 reflector --country Brazil --age 12 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
-pacman -Syyuu -noconfirm
+pacman -Syyuu --noconfirm
 _fim_msg
 
 # Define senha de root
 echo "Definir senha de root"
 passwd
+
+echo "Ativa dhcpd"
+systemctl enable dhcpcd
 
 if [ ${BOOT_EFI} -eq 1 ]; then
     _efi_system
@@ -132,6 +135,7 @@ fi
 _fim_msg
 _espera_confimacao
 
-reboot
+echo "Desmonte as partições e reinicie"
+echo
 
 exit 0

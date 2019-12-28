@@ -22,9 +22,15 @@ ler_resposta() {
         return -1
     fi
 }
+continuar=1
 
+if [ ${continuar} -eq 0 ]; then
+    echo efi
+    continuar=1
+elif [ ${continuar} -eq 1 ]; then
+    echo legacy
+fi
 
-continuar=0
 while [ ${continuar} -eq 0 ]; do
     read -p "Continuar?[0/1]" resposta
     if [ ${resposta} -eq 0 ]; then
