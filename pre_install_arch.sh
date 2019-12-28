@@ -84,9 +84,9 @@ _fim_msg() {
 }
 
 _ping_internet() {
-    echo "################################"
-    echo "# Testando conexão internet... #"
-    echo "################################"
+    echo "#############################"
+    echo "# Testando conexão internet #"
+    echo "#############################"
     echo
     ping -c 4 -q archlinux.org
     if [ $? -eq 0 ]; then
@@ -96,11 +96,6 @@ _ping_internet() {
         printf "${red_full}" "Conexão inativa!"
         return -1
     fi
-}
-
-_espera_confimacao() {
-    echo "Continuar?"
-    read
 }
 
 _efi_system() {
@@ -120,9 +115,9 @@ _efi_system() {
     _fim_msg
 
     # Montar sistema
-    echo "############################"
+    echo "################################"
     echo "# Montando raíz do sistema EFI #"
-    echo "############################"
+    echo "################################"
     mount /dev/sda2 /mnt
     mkdir -p /mnt/boot
     mount /dev/sda1 /mnt/boot
@@ -138,9 +133,9 @@ _legacy_system() {
     _fim_msg
 
     # Montar sistema
-    echo "############################"
+    echo "###################################"
     echo "# Montando raíz do sistema LEGACY #"
-    echo "############################"
+    echo "###################################"
     mount /dev/sda1 /mnt
 }
 #
@@ -237,7 +232,6 @@ echo "#                                           #"
 echo "#                            *recomendação  #"
 echo "#############################################"
 _fim_msg
-_espera_confimacao
 cfdisk
 
 # Lista partições criadas
@@ -251,7 +245,6 @@ elif [ ${BOOT_LEGACY} -eq 1 ]; then
     _legacy_system
 fi
 _fim_msg
-_espera_confimacao
 
 # Atualizando pacman e instalando reflector
 echo "########################"
@@ -284,7 +277,6 @@ _fim_msg
 # Exibindo arquivo fstab gerado
 cat /mnt/etc/fstab
 _fim_msg
-_espera_confimacao
 
 # Fim da pré-instação
 echo "#########################"

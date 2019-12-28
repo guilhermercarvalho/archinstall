@@ -43,6 +43,10 @@ BOOT_LEGACY=0
 #
 #
 #######################################################################################
+#
+#                                   Funções
+#                                   -------
+#
 _fim_msg() {
     echo
     echo '-------------------------------------------------------------------------------'
@@ -68,7 +72,13 @@ _legacy_system() {
     grub-install /dev/sda
     grub-mkconfig -o /boot/grub/grub.cfg
 }
-
+#
+#
+#######################################################################################
+#
+#                           Início Configuração do Sistema
+#                           ------ ------------ -- -------
+#
 # Define tipo de boot disponível (UEFI ou Legacy)
 if [ -d /sys/firmware/efi/efivars ]; then
     echo "###################"
@@ -84,32 +94,38 @@ fi
 _fim_msg
 
 # Define fuso horário
-echo "Definindo TIMEZONE"
+echo "######################"
+echo "# Definir horário #"
+echo "######################"
 ln -sf "${TIMEZONE}" /etc/localtime # São Paulo por padrão
 hwclock --systohc --utc
+_fim_msg
 
 # Define idioma do sistema e do teclado
-echo "Definir localização e idioma"
+echo "################################"
+echo "# Definir localização e idioma #"
+echo "################################"
 sed -i 's/#pt_BR.UTF-8 UTF-8/pt_BR.UTF-8 UTF-8/g;s/#pt_BR ISO-8859-1/pt_BR ISO-8859-1/g' /etc/locale.gen
 locale-gen
 echo "LANG=pt_BR.UTF-8" >> /etc/locale.conf
 export LANG=pt_BR.UTF-8
 echo "KEYMAP="${IDIOMA_TECLADO}"" >> /etc/vconsole.conf
+_fim_msg
 
 # Configura etc/hostname
-echo "Configurar Internet"
+echo "#######################"
+echo "# Configurar internet #"
+echo "#######################"
 echo "$NOME_HOST" >> /etc/hostname
 echo -e "127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t"${NOME_HOST}".localdomain "${NOME_HOST}"" >> /etc/hosts
 echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" > /etc/resolv.conf
-
-# Atualiza Sistema
-echo "Update Pacman System"
-pacman -Syyuu
+_fim_msg
 
 # Atualizando pacman e instalando reflector
 echo "########################"
 echo "# Instalando reflector #"
 echo "########################"
+pacman -Syyuu
 pacman -S reflector --noconfirm
 _fim_msg
 
@@ -117,15 +133,25 @@ echo "####################################"
 echo "# Procurando por melhores espelhos #"
 echo "####################################"
 reflector --country Brazil --age 12 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
-pacman -Syyuu --noconfirm
+pacman -Syyuu nano vim bash-completion --noconfirm
 _fim_msg
 
 # Define senha de root
-echo "Definir senha de root"
+echo "#########################"
+echo "# Definir senha de root #"
+echo "#########################"
 passwd
 
-echo "Ativa dhcpd"
-systemctl enable dhcpcd
+# Cria usuário sudo
+echo "######################"
+echo "# Criar usuário sudo #"
+echo "######################"
+useradd -m -G wheel -s /bin/bash guilherme
+passwd guilherme
+sed -i 's/#%wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
+_fim_msg
+
+systemctl enable dhcpcd.service
 
 if [ ${BOOT_EFI} -eq 1 ]; then
     _efi_system
@@ -133,7 +159,6 @@ elif [ ${BOOT_LEGACY} -eq 1 ]; then
     _legacy_system
 fi
 _fim_msg
-_espera_confimacao
 
 echo "Desmonte as partições e reinicie"
 echo
