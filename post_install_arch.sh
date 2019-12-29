@@ -121,10 +121,10 @@ echo '--------------------------------------------------------------------------
 # Instala interface gráfica
 echo "####################################################################"
 echo "# Selecione a interface gráfica a ser instalada (Apenas o número): #"
-echo -e "# 1)GNOME \t2)KDE                                              #"
+echo "#            1)GNOME                      2)KDE                    #"
+echo "#                                                                  #"
+read -p " # Interface: " interface
 echo "####################################################################"
-echo
-read -p "Interface: " interface
 
 sudo pacman -S xorg xorg-xinit --noconfirm
 
@@ -183,6 +183,8 @@ git config --global user.email "guilhermercarvalho512@gmail.com"
 #ssh-keygen
 #echo "Copy your public key."
 _fim_msg
+
+sudo rm -rf archinstall
 
 echo "#########################"
 echo "# Reiniciando o sistema #"
