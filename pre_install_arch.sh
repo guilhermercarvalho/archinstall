@@ -287,14 +287,20 @@ echo "# FIM DA PRÉ-INSTALAÇÃO #"
 echo "#########################"
 _fim_msg
 
-# echo "#################################"
-# echo "# Copiando archinstal para /mnt #"
-# echo "#################################"
-# cp -r ./archinstall /mnt
+echo "#################################"
+echo "# Copiando archinstal para /mnt #"
+echo "#################################"
+cp -r ./archinstall /mnt
 
 echo "#######################"
 echo "# Comando arch-chroot #"
 echo "#######################"
-arch-chroot /mnt sh /root/archinstal/config_sys_arch.sh
+arch-chroot /mnt sh /archinstal/config_sys_arch.sh
+
+echo "######################"
+echo "# Reinicie o sistema #"
+echo "######################"
+_fim_msg
+reboot
 
 exit 0
