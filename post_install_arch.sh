@@ -123,8 +123,8 @@ echo "####################################################################"
 echo "# Selecione a interface gráfica a ser instalada (Apenas o número): #"
 echo -e "# 1)GNOME \t2)KDE                                              #"
 echo "####################################################################"
-
-read -p ":" interface
+echo
+read -p "Interface: " interface
 
 sudo pacman -S xorg xorg-xinit --noconfirm
 
@@ -157,7 +157,7 @@ echo 'Instalando minhas aplicações pacman e yay...'
 #pacman -S cmatrix texlive-most flashplugin libreoffice-fresh libreoffice-fresh-pt-br linux-firmware util-linux virtualbox zsh-completions bluez bluez-utils android-tools gparted bash-completion gpick gimp inkscape lutris htop transmission-gtk vim vlc keepassxc --noconfirm
 # pacman -S nano vim dhcpcd --noconfirm
 #yay -S megasync gnome-shell-pomodoro stremio-beta dropbox jdk8-openjdk openjdk8-doc openjdk8-src codecs64 discord oh-my-zsh-git pamac-aur spotify visual-studio-code-bin --noconfirm
-yay -S visual-studio-code-bin --noconfirm
+#yay -S visual-studio-code-bin --noconfirm
 
 echo "#########################"
 echo "# Install Audio Plugins #"
@@ -183,7 +183,11 @@ git config --global user.email "guilhermercarvalho512@gmail.com"
 #ssh-keygen
 #echo "Copy your public key."
 _fim_msg
-echo "Reinicie o sistema"
-echo
+
+echo "#########################"
+echo "# Reiniciando o sistema #"
+echo "#########################"
+_fim_msg
+reboot
 
 # sed 's:# alias zshconfig:alias zshconfig: ; s:# alias ohmyzsh:alias ohmyzsh: ; s:"mate ~\/:"vim ~\/': .zshrc

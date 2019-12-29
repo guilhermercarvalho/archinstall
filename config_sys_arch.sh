@@ -37,6 +37,25 @@ IDIOMA_TECLADO=$(find /usr/share/kbd/keymaps/**/* -iname br-abnt2.map.gz | head 
 TIMEZONE=$(find /usr/share/zoneinfo/**/* -iname Sao_Paulo | head -n 1)
 NOME_HOST="arch"
 
+# Usuario sudo
+USUARIO='guilherme'
+
+# Cores
+red_full=$'\e[1;31m%s\e[0m\n'
+grn_full=$'\e[1;32m%s\e[0m\n'
+yel_full=$'\e[1;33m%s\e[0m\n'
+blu_full=$'\e[1;34m%s\e[0m\n'
+mag_full=$'\e[1;35m%s\e[0m\n'
+cyn_full=$'\e[1;36m%s\e[0m\n'
+
+red=$'\e[1;31m'
+grn=$'\e[1;32m'
+yel=$'\e[1;33m'
+blu=$'\e[1;34m'
+mag=$'\e[1;35m'
+cyn=$'\e[1;36m'
+end=$'\e[0m'
+
 # Boot do sistema
 BOOT_EFI=0
 BOOT_LEGACY=0
@@ -94,9 +113,9 @@ fi
 _fim_msg
 
 # Define fuso horário
-echo "######################"
+echo "###################"
 echo "# Definir horário #"
-echo "######################"
+echo "###################"
 ln -sf "${TIMEZONE}" /etc/localtime # São Paulo por padrão
 hwclock --systohc --utc
 _fim_msg
@@ -146,8 +165,8 @@ passwd
 echo "######################"
 echo "# Criar usuário sudo #"
 echo "######################"
-useradd -m -G wheel -s /bin/bash guilherme
-passwd guilherme
+useradd -m -G wheel -s /bin/bash ${USUARIO}
+passwd ${USUARIO}
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 _fim_msg
 
@@ -160,7 +179,9 @@ elif [ ${BOOT_LEGACY} -eq 1 ]; then
 fi
 _fim_msg
 
-echo "Desmonte as partições e reinicie"
-echo
+echo "######################"
+echo "# Reinicie o sistema #"
+echo "######################"
+_fim_msg
 
 exit 0

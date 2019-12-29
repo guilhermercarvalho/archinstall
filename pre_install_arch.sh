@@ -223,11 +223,14 @@ timedatectl set-ntp true
 
 # Paticionamento de disco
 echo "#############################################"
-echo "#        Criando partições em disco         #"
+echo "#        Particionamento de Disco           #"
 echo "#                                           #"
-echo "# /dev/sda: SSD                             #"
+echo "# EFI disponível                            #"
 echo "# /dev/sda1: EFI partição de boot - 260 MiB #"
 echo "# /dev/sda2: Linux filesystem - +20 GiB     #"
+echo "#                                           #"
+echo "# LEGACY disponível                         #"
+echo "# /dev/sda1: Linux filesystem - +10 GiB     #"
 echo "#                                           #"
 echo "#                            *recomendação  #"
 echo "#############################################"
@@ -264,7 +267,7 @@ _fim_msg
 echo "#######################################"
 echo "# Instalando arch em novo dispositivo #"
 echo "#######################################"
-pacstrap /mnt base base-devel linux linux-firmware nano vim bash-completion dhcpcd
+pacstrap /mnt base base-devel linux linux-firmware nano vim bash-completion dhcpcd git
 _fim_msg
 
 # Gerendo arquivo fstab
@@ -284,6 +287,14 @@ echo "# FIM DA PRÉ-INSTALAÇÃO #"
 echo "#########################"
 _fim_msg
 
-echo -e "Execute o camando: arch-chroot /mnt\n"
-cp -r ./archinstall /mnt
+# echo "#################################"
+# echo "# Copiando archinstal para /mnt #"
+# echo "#################################"
+# cp -r ./archinstall /mnt
+
+echo "#######################"
+echo "# Comando arch-chroot #"
+echo "#######################"
+arch-chroot /mnt sh /root/archinstal/config_sys_arch.sh
+
 exit 0
