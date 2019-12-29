@@ -295,6 +295,6 @@ cp -r ./archinstall /mnt
 echo "#######################"
 echo "# Comando arch-chroot #"
 echo "#######################"
-arch-chroot /mnt sh /archinstal/config_sys_arch.sh
+arch-chroot /mnt sh /archinstall/config_sys_arch.sh
 
 exit 0
