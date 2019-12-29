@@ -297,10 +297,4 @@ echo "# Comando arch-chroot #"
 echo "#######################"
 arch-chroot /mnt sh /archinstal/config_sys_arch.sh
 
-echo "######################"
-echo "# Reinicie o sistema #"
-echo "######################"
-_fim_msg
-reboot
-
 exit 0

@@ -179,4 +179,9 @@ elif [ ${BOOT_LEGACY} -eq 1 ]; then
 fi
 _fim_msg
 
+echo "######################"
+echo "# Reinicie o sistema #"
+echo "######################"
+_fim_msg
+
 exit 0
