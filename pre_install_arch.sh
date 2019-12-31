@@ -246,7 +246,7 @@ echo "Selecione o seu dispositivo:"
 read DEV
 _fim_msg
 
-cfdisk
+cfdisk /dev/sd${DEV}
 
 # Lista partições criadas
 fdisk -l
