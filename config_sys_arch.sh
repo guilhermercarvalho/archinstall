@@ -184,6 +184,7 @@ systemctl enable dhcpcd.service
 _fim_msg
 
 fdisk -l
+_fim_msg
 
 echo "Selecione o seu dispositivo:"
 read DEV

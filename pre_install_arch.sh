@@ -229,14 +229,17 @@ echo "#############################################"
 echo "#        Particionamento de Disco           #"
 echo "#                                           #"
 echo "# EFI disponível (gpt)                      #"
-echo "# /dev/sd${DEV}1: EFI partição de boot - 260 MiB #"
-echo "# /dev/sd${DEV}2: Linux filesystem - +20 GiB     #"
+echo "# /dev/sdN1: EFI partição de boot - 260 MiB #"
+echo "# /dev/sdN2: Linux filesystem - +20 GiB     #"
 echo "#                                           #"
 echo "# LEGACY disponível (dos)                   #"
-echo "# /dev/sd${DEV}1: Linux filesystem - +10 GiB     #"
+echo "# /dev/sdN1: Linux filesystem - +10 GiB     #"
 echo "#                                           #"
 echo "#                            *recomendação  #"
 echo "#############################################"
+_fim_msg
+
+fdisk -l
 _fim_msg
 
 echo "Selecione o seu dispositivo:"

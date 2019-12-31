@@ -32,25 +32,25 @@ Pensando na facilitação deste processo também criei o programa *install_iso_a
 
 Após o início da ISO será aberta uma sessão do terminal. Será necessário a execução de alguns comandos para realizado download deste programa.
 
-```console
+```bash
 loadkeys i386/qwerty/br-abnt2.map.gz
 ```
 
-```console
+```bash
 yes n | pacamn -Syyuu
 ```
 
-```console
+```bash
 pacman -S git --noconfirm
 ```
 
-```console
+```bash
 git clone https://github.com/guilhermercarvalho/archinstall.git
 ```
 
 ### Iniando instalação
 
-```console
+```bash
 sh archinstall/pre_install_arch.sh
 ```
 
