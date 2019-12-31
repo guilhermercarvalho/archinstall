@@ -59,6 +59,9 @@ end=$'\e[0m'
 # Boot do sistema
 BOOT_EFI=0
 BOOT_LEGACY=0
+
+# Dispotivo
+DEV=''
 #
 #
 #######################################################################################
@@ -81,14 +84,14 @@ _efi_system() {
     # Configurando systemd-boot
     bootctl --path=/boot install
     echo -e "default  arch\n#timeout  3\nconsole-mode max\neditor   no" > /boot/loader/loader.conf
-    echo -e "title   Arch Linux\nlinux   /vmlinuz-linux\ninitrd  /intel-ucode.img\ninitrd  /initramfs-linux.img\noptions root=PARTUUID=$(blkid /dev/sda2 | sed "s/.*PARTUUID=//g" | cut -d\" -f2) rw" > /boot/loader/entries/arch.conf
+    echo -e "title   Arch Linux\nlinux   /vmlinuz-linux\ninitrd  /intel-ucode.img\ninitrd  /initramfs-linux.img\noptions root=PARTUUID=$(blkid /dev/sd${DEV}2 | sed "s/.*PARTUUID=//g" | cut -d\" -f2) rw" > /boot/loader/entries/arch.conf
 }
 
 _legacy_system() {
     # Configura gerenciador de boot do sistema
     echo "Configure o boot da máquina"
     pacman -S grub os-prober --noconfirm
-    grub-install /dev/sda
+    grub-install /dev/sd${DEV}
     grub-mkconfig -o /boot/grub/grub.cfg
 }
 #
@@ -178,6 +181,12 @@ echo "##############################"
 echo "# Habilitando dhcpcd.service #"
 echo "##############################"
 systemctl enable dhcpcd.service
+_fim_msg
+
+fdisk -l
+
+echo "Selecione o seu dispositivo:"
+read DEV
 _fim_msg
 
 if [ ${BOOT_EFI} -eq 1 ]; then

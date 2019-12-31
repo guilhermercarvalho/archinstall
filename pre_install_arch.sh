@@ -61,6 +61,9 @@ blu=$'\e[1;34m'
 mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
+
+# Dispositivo
+DEV=''
 #
 #
 #######################################################################################
@@ -100,17 +103,17 @@ _ping_internet() {
 
 _efi_system() {
     # Formatar partições
-    read -p "/dev/sda1: EFI System?[S/n]" resposta
+    read -p "/dev/sd${DEV}1: EFI System?[S/n]" resposta
     _ler_resposta
     if [ $? -eq 0 ]; then
-        mkfs.fat -F32 /dev/sda1
+        mkfs.fat -F32 /dev/sd${DEV}1
     fi
     _fim_msg
 
-    read -p "/dev/sda2: Linux filesystem?[S/n]" resposta
+    read -p "/dev/sd${DEV}2: Linux filesystem?[S/n]" resposta
     _ler_resposta
     if [ $? -eq 0 ]; then
-        mkfs.ext4 /dev/sda2
+        mkfs.ext4 /dev/sd${DEV}2
     fi
     _fim_msg
 
@@ -118,17 +121,17 @@ _efi_system() {
     echo "################################"
     echo "# Montando raíz do sistema EFI #"
     echo "################################"
-    mount /dev/sda2 /mnt
+    mount /dev/sd${DEV}2 /mnt
     mkdir -p /mnt/boot
-    mount /dev/sda1 /mnt/boot
+    mount /dev/sd${DEV}1 /mnt/boot
 }
 
 _legacy_system() {
     # Formatar partições
-    read -p "/dev/sda1: Linux filesystem?[S/n]" resposta
+    read -p "/dev/sd${DEV}1: Linux filesystem?[S/n]" resposta
     _ler_resposta
     if [ $? -eq 0 ]; then
-        mkfs.ext4 /dev/sda1
+        mkfs.ext4 /dev/sd${DEV}1
     fi
     _fim_msg
 
@@ -136,7 +139,7 @@ _legacy_system() {
     echo "###################################"
     echo "# Montando raíz do sistema LEGACY #"
     echo "###################################"
-    mount /dev/sda1 /mnt
+    mount /dev/sd${DEV}1 /mnt
 }
 #
 #
@@ -226,15 +229,20 @@ echo "#############################################"
 echo "#        Particionamento de Disco           #"
 echo "#                                           #"
 echo "# EFI disponível (gpt)                      #"
-echo "# /dev/sda1: EFI partição de boot - 260 MiB #"
-echo "# /dev/sda2: Linux filesystem - +20 GiB     #"
+echo "# /dev/sd${DEV}1: EFI partição de boot - 260 MiB #"
+echo "# /dev/sd${DEV}2: Linux filesystem - +20 GiB     #"
 echo "#                                           #"
 echo "# LEGACY disponível (dos)                   #"
-echo "# /dev/sda1: Linux filesystem - +10 GiB     #"
+echo "# /dev/sd${DEV}1: Linux filesystem - +10 GiB     #"
 echo "#                                           #"
 echo "#                            *recomendação  #"
 echo "#############################################"
 _fim_msg
+
+echo "Selecione o seu dispositivo:"
+read DEV
+_fim_msg
+
 cfdisk
 
 # Lista partições criadas

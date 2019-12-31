@@ -81,7 +81,7 @@ do
             fi
             echo "Iniciando processo de boot pelo pendrive"
             echo
-            dd if=archlinux-x86_64.iso of=/dev/sd"${dispositivo}" status="progress"
+            sudo dd if=${HOME}/archlinux-x86_64.iso of=/dev/sd"${dispositivo}" status="progress"
             echo
             echo "Processo de boot finalizado!"
             echo "Reinicie sua máquina dando boot pelo pendrive."
