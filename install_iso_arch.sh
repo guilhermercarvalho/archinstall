@@ -47,10 +47,11 @@ echo -e "1)Baixar ISO\n2)Bootar ISO em um pendrive\n3)Iniciar Boot pelo pendrive
 
 read -p "Etapa(s): " opcao
 
-for i in $opcao
+for i in ${opcao}
 do
-    case $i in
-        1)  echo "### Etapa 1 ###"
+    case ${i} in
+        1)
+            echo "### Etapa 1 ###"
             echo "A ISO mais recente está sendo baixada. Aguarde!"            
             # Encontra ISO mais recente no repositório mantido pela UFPR
             l=$(curl -s http://archlinux.c3sl.ufpr.br/iso/latest/ |
@@ -58,18 +59,19 @@ do
             cut -d\" -f2)               
             wget -c -O ${HOME}/archlinux-x86_64.iso http://archlinux.c3sl.ufpr.br/iso/latest/"${l}"
             ;;
-        2)  echo "### Etapa 2 ###"
+        2)  
+            echo "### Etapa 2 ###"
             echo "Este processo irá apagar por completo seu dispositivo."
             echo "Certifique-se de que o dispositivo CORRETO está selecionado!"
             sudo fdisk -l
             echo
             echo "Selecione o dispositivo /dev/sdx. Apenas a letra."
             read dispositivo
-            if [[ $dispositivo =~ [a-z] ]]; then
-                echo "Dispositivo selecionado: /dev/sd"$dispositivo""
+            if [[ ${dispositivo} =~ [a-z] ]]; then
+                echo "Dispositivo selecionado: /dev/sd"${dispositivo}""
                 echo
                 read -p "Dispositivo correto?[S/n] " resposta
-                if [[ $resposta =~ ^[Nn]([aA][oO])*$ ]]; then
+                if [[ $resposta =~ ^[Nn]([aAãÃ][oO])*$ ]]; then
                     echo "Programa Finalizado"
                     exit 1
                 fi
@@ -79,19 +81,21 @@ do
             fi
             echo "Iniciando processo de boot pelo pendrive"
             echo
-            dd if=archlinux-x86_64.iso of=/dev/sd"$dispositivo" status="progress"
+            dd if=archlinux-x86_64.iso of=/dev/sd"${dispositivo}" status="progress"
             echo
             echo "Processo de boot finalizado!"
             echo "Reinicie sua máquina dando boot pelo pendrive."
             exit 0
             ;;
-        3)  echo "### Etapa 3 ###"
+        3)
+            echo "### Etapa 3 ###"
             echo "Após realizado o download e o BOOT da ISO,"
-            echo "inicialize sua máquina com o pendrive como dispositivo primário de BOOT."
+            echo "Inicialize sua máquina com o pendrive como dispositivo primário de BOOT."
             echo "Reinicie a máquina"
             exit 0
             ;;
-        *)  echo "### Etapa inválida ###"
-        ;;
+        *)
+            echo "### Etapa inválida ###"
+            ;;
     esac            
 done

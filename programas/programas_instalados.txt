@@ -1,5 +1,0 @@
-Pacman
-vim gimp inkscape gpick firefox texlive-most chromium vlc htop gparted git zsh obs-studio gnome-shell-extensions chrome-gnome-shell bash-completion ntfs-3g networkmanager lutris wine keepassxc neofetch sox --noconfirm
-
-Yay
-megasync discord dropbox visual-studio-code-bin spotify

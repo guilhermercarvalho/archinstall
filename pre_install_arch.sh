@@ -15,7 +15,7 @@
 # Histórico:
 #
 #   v1.0 2019-10-21, Guilherme Carvalho:
-#       - Versão inicial do programa em execução sem tratamento de erros
+#       - Versão inicial do programa
 #
 #
 # Licença: -
@@ -225,11 +225,11 @@ timedatectl set-ntp true
 echo "#############################################"
 echo "#        Particionamento de Disco           #"
 echo "#                                           #"
-echo "# EFI disponível                            #"
+echo "# EFI disponível (gpt)                      #"
 echo "# /dev/sda1: EFI partição de boot - 260 MiB #"
 echo "# /dev/sda2: Linux filesystem - +20 GiB     #"
 echo "#                                           #"
-echo "# LEGACY disponível                         #"
+echo "# LEGACY disponível (dos)                   #"
 echo "# /dev/sda1: Linux filesystem - +10 GiB     #"
 echo "#                                           #"
 echo "#                            *recomendação  #"
@@ -259,7 +259,7 @@ _fim_msg
 echo "####################################"
 echo "# Procurando por melhores espelhos #"
 echo "####################################"
-reflector --country Brazil --age 12 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
+reflector --country Brazil --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 yes no | pacman -Syyuu
 _fim_msg
 
@@ -267,7 +267,7 @@ _fim_msg
 echo "#######################################"
 echo "# Instalando arch em novo dispositivo #"
 echo "#######################################"
-pacstrap /mnt base base-devel linux linux-firmware nano vim bash-completion dhcpcd git
+pacstrap /mnt base base-devel linux linux-firmware util-linux nano vim bash-completion dhcpcd git
 _fim_msg
 
 # Gerendo arquivo fstab
@@ -281,16 +281,10 @@ _fim_msg
 cat /mnt/etc/fstab
 _fim_msg
 
-# Fim da pré-instação
-echo "#########################"
-echo "# FIM DA PRÉ-INSTALAÇÃO #"
-echo "#########################"
-_fim_msg
-
 echo "#################################"
 echo "# Copiando archinstal para /mnt #"
 echo "#################################"
-cp -r ./archinstall /mnt
+cp -vr ./archinstall /mnt
 
 echo "#######################"
 echo "# Comando arch-chroot #"

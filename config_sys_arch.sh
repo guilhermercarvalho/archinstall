@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 #
-# pre_install_arch.sh - Pre-Instalação do Arch Linux
+# config_sys_arch.sh - Configuração do sistema Arch Linux
 #
 # Site  : https://github.com/guilhermercarvalho/archinstall
 # Autor : Guilherme Carvalho <guilhermercarvalho512@gmail.com>
 #
 # -------------------------------------------------------------------------------------
 #
-# Este programa executa a pré-instalção do Arch Linux em seu sistema
+# Este programa executa a configuração do Arch Linux instalado em seu dispositivo
 #
 # -------------------------------------------------------------------------------------
 #
 # Histórico:
 #
 #   v1.0 2019-10-21, Guilherme Carvalho:
-#       - Versão inicial do programa em execução sem tratamento de erros
+#       - Versão inicial do programa
 #
 #
 # Licença: -
@@ -99,6 +99,10 @@ _legacy_system() {
 #                           ------ ------------ -- -------
 #
 # Define tipo de boot disponível (UEFI ou Legacy)
+echo "##########################################"
+echo "# Tipo de boot disponível para o sistema #"
+echo "##########################################"
+_fim_msg
 if [ -d /sys/firmware/efi/efivars ]; then
     echo "###################"
     printf "%s\n" "# UEFI ${grn}disponível${end} #"
@@ -113,17 +117,17 @@ fi
 _fim_msg
 
 # Define fuso horário
-echo "###################"
-echo "# Definir horário #"
-echo "###################"
+echo "#####################"
+echo "# Definindo horário #"
+echo "#####################"
 ln -sf "${TIMEZONE}" /etc/localtime # São Paulo por padrão
 hwclock --systohc --utc
 _fim_msg
 
 # Define idioma do sistema e do teclado
-echo "################################"
-echo "# Definir localização e idioma #"
-echo "################################"
+echo "##################################"
+echo "# Definindo localização e idioma #"
+echo "##################################"
 sed -i 's/#pt_BR.UTF-8 UTF-8/pt_BR.UTF-8 UTF-8/g;s/#pt_BR ISO-8859-1/pt_BR ISO-8859-1/g' /etc/locale.gen
 locale-gen
 echo "LANG=pt_BR.UTF-8" >> /etc/locale.conf
@@ -132,9 +136,9 @@ echo "KEYMAP="${IDIOMA_TECLADO}"" >> /etc/vconsole.conf
 _fim_msg
 
 # Configura etc/hostname
-echo "#######################"
-echo "# Configurar internet #"
-echo "#######################"
+echo "###############################"
+echo "# Configurando hosts e resolv #"
+echo "###############################"
 echo "$NOME_HOST" >> /etc/hostname
 echo -e "127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t"${NOME_HOST}".localdomain "${NOME_HOST}"" >> /etc/hosts
 echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" > /etc/resolv.conf
@@ -151,7 +155,7 @@ _fim_msg
 echo "####################################"
 echo "# Procurando por melhores espelhos #"
 echo "####################################"
-reflector --country Brazil --age 12 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
+reflector --country Brazil --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 pacman -Syyuu --noconfirm
 _fim_msg
 
@@ -162,15 +166,19 @@ echo "#########################"
 passwd
 
 # Cria usuário sudo
-echo "######################"
-echo "# Criar usuário sudo #"
-echo "######################"
+echo "##############################"
+echo "# Criando usuário ${USUARIO} #"
+echo "##############################"
 useradd -m -G wheel -s /bin/bash ${USUARIO}
 passwd ${USUARIO}
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 _fim_msg
 
+echo "##############################"
+echo "# Habilitando dhcpcd.service #"
+echo "##############################"
 systemctl enable dhcpcd.service
+_fim_msg
 
 if [ ${BOOT_EFI} -eq 1 ]; then
     _efi_system

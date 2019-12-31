@@ -7,7 +7,7 @@
 #
 # -------------------------------------------------------------------------------------
 #
-# Este programa instala os programas básicos que utilizo no meu dia-a-dia e realiza
+# Este programa instala os programas que utilizo no meu dia-a-dia e realiza
 # configurações do sistema de minha preferência.
 #
 # -------------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 # Histórico:
 #
 #   v1.0 2019-08-01, Guilherme Carvalho:
-#       - Versão inicial do programa em execução sem tratamento de erros
+#       - Versão inicial do programa
 #
 #
 # Licença: -
@@ -25,75 +25,11 @@
 #                                          Funções
 #                                          -------
 #
-_ler_resposta() {
-    if [[ ${resposta} =~ ^[sS]([iI][mM])*$ || ${resposta} = "" ]]; then
-        return 0
-    else
-        return -1
-    fi
-}
-
 _fim_msg() {
     echo
     echo '-------------------------------------------------------------------------------'
     echo
     sleep 2
-}
-
-_ping_internet() {
-    echo "#############################"
-    echo "# Testando conexão internet #"
-    echo "#############################"
-    echo
-    ping -c 4 -q archlinux.org
-    if [ $? -eq 0 ]; then
-        printf "${grn_full}" "Conexão ativa!"
-        return 0
-    else
-        printf "${red_full}" "Conexão inativa!"
-        return -1
-    fi
-}
-
-_efi_system() {
-    # Formatar partições
-    read -p "/dev/sda1: EFI System?[S/n]" resposta
-    _ler_resposta
-    if [ $? -eq 0 ]; then
-        mkfs.fat -F32 /dev/sda1
-    fi
-    _fim_msg
-
-    read -p "/dev/sda2: Linux filesystem?[S/n]" resposta
-    _ler_resposta
-    if [ $? -eq 0 ]; then
-        mkfs.ext4 /dev/sda2
-    fi
-    _fim_msg
-
-    # Montar sistema
-    echo "################################"
-    echo "# Montando raíz do sistema EFI #"
-    echo "################################"
-    mount /dev/sda2 /mnt
-    mkdir -p /mnt/boot
-    mount /dev/sda1 /mnt/boot
-}
-
-_legacy_system() {
-    # Formatar partições
-    read -p "/dev/sda1: Linux filesystem?[S/n]" resposta
-    _ler_resposta
-    if [ $? -eq 0 ]; then
-        mkfs.ext4 /dev/sda1
-    fi
-    _fim_msg
-
-    # Montar sistema
-    echo "###################################"
-    echo "# Montando raíz do sistema LEGACY #"
-    echo "###################################"
-    mount /dev/sda1 /mnt
 }
 #
 #
@@ -114,55 +50,87 @@ echo '--------------------------------------------------------------------------
 #
 #
 #######################################################################################
+#
+#                                Messagem de Boas-Vindas
+#                                -------- -- -----------
+#
+echo "############################################################"
+echo "#                                                          #"
+echo "# Bem-Vindo a Pós-Configuração da Instalação do Arch Linux #"
+echo "#                                                          #"
+echo "############################################################"
+_fim_msg
+#
+#
+#######################################################################################
 # 
 #                               Início Pós-Instalação
 #                               ------ --------------
 #
+echo "#################################"
+echo "# Habilitando aplicações 32-bit #"
+echo "#################################"
+sudo sed -zi 's/#\[multilib\]\n#Include = \/etc\/pacman.d\/mirrorlist/\[multilib\]\nInclude = \/etc\/pacman.d\/mirrorlist/g' /etc/pacman.conf
+
 # Instala interface gráfica
 echo "####################################################################"
 echo "# Selecione a interface gráfica a ser instalada (Apenas o número): #"
 echo "#            1)GNOME                      2)KDE                    #"
-echo "#                                                                  #"
-read -p " # Interface: " interface
 echo "####################################################################"
+echo
+read -p "Interface: " interface
 
-sudo pacman -S xorg xorg-xinit --noconfirm
+sudo pacman -Syyuu xorg xorg-xinit intel-media-driver mesa lib32-mesa intel-ucode vulkan-intel --noconfirm
 
 case "${interface}" in
-    1) sudo pacman -S gnome gnome-extra gnome-shell-extensions gnome-power-manager --noconfirm;;
-    2) sudo pacman -S plasma kde-applications sddm --noconfirm;;
+    1)
+        sudo pacman -S gnome gnome-extra gnome-shell-extensions gnome-power-manager --noconfirm
+        ;;
+    2)
+        sudo pacman -S plasma kde-applications sddm --noconfirm
+        ;;
 esac
 _fim_msg
 
 # Ativando gerenciador de login e internet para Gnome
 case "${interface}" in
-    1) sudo systemctl enable NetworkManager.service
-    sudo systemctl enable gdm.service
-    sudo sed -i 's:#.*WaylandEnable=false:WaylandEnable=false': /etc/gdm/custom.conf
-    ;;
-    2) sudo systemctl enable sddm.service ;;
+    1)
+        sudo systemctl enable NetworkManager.service
+        sudo systemctl enable gdm.service
+        sudo sed -i 's:#.*WaylandEnable=false:WaylandEnable=false': /etc/gdm/custom.conf
+        echo -e 'headerbar.default-decoration {\npadding-top: 3px;\npadding-bottom: 3px;\nmin-height: 3px;\nfont-size: 1em;\n}\n\nheaderbar.default-decoration button.titlebutton {\npadding: 3px;\nmin-height: 3px;\n}' > ${HOME}/.config/gtk-3.0/gtk.css
+        ;;
+    2)
+        sudo systemctl enable sddm.service
+        ;;
 esac
 
-echo "######################"
-echo "# Instalar YAY (AUR) #"
-echo "######################"
+echo "########################"
+echo "# Instalando YAY (AUR) #"
+echo "########################"
 git clone https://aur.archlinux.org/yay.git
 cd yay && makepkg -si
-cd ~
+cd ${HOME}
 rm -rf yay/
 yay -Syyuu --noconfirm
 _fim_msg
 
-echo 'Instalando minhas aplicações pacman e yay...'
-#pacman -S cmatrix texlive-most flashplugin libreoffice-fresh libreoffice-fresh-pt-br linux-firmware util-linux virtualbox zsh-completions bluez bluez-utils android-tools gparted bash-completion gpick gimp inkscape lutris htop transmission-gtk vim vlc keepassxc --noconfirm
-# pacman -S nano vim dhcpcd --noconfirm
-#yay -S megasync gnome-shell-pomodoro stremio-beta dropbox jdk8-openjdk openjdk8-doc openjdk8-src codecs64 discord oh-my-zsh-git pamac-aur spotify visual-studio-code-bin --noconfirm
-#yay -S visual-studio-code-bin --noconfirm
+echo "############################"
+echo "# Minhas aplicações PACMAN #"
+echo "############################"
+sudo pacman -S android-tools bluez-utils chromium cmatrix cupsdiscord firefox firefox-i18n-pt-br gparted gpick htop inkscape jdk8-openjdk keepassxc klavaro libreoffice-fresh libreoffice-fresh-pt-br neofetch obs-studio openjdk-doc openjdk-src openjdk8-doc openjdk8-src p7zip p7zip-plugins unrar tar rsyncar sox steam speedtest-cli wine vlc virtualbox --noconfirm
+_fim_msg
 
 echo "#########################"
-echo "# Install Audio Plugins #"
+echo "# Minhas aplicações AUR #"
 echo "#########################"
-pacman -S alsa-lib alsa-utils alsa-oss pulseaudio pulseaudio-alsa --noconfirm
+yay -S codecs64 dropbox megasync pamac-aur skypeforlinux-stable-bin stremio-beta visual-studio-code-bin --noconfirm
+_fim_msg
+
+echo "###############################"
+echo "# Instalando plugins de audio #"
+echo "###############################"
+sudo pacman -S alsa-lib alsa-utils alsa-oss pulseaudio pulseaudio-alsa --noconfirm
 _fim_msg
 
 echo "###########################"
@@ -173,23 +141,33 @@ echo -e "\n[sublime-text]\nServer = https://download.sublimetext.com/arch/stable
 sudo pacman -Syu sublime-text --noconfirm
 _fim_msg
 
-# configurar propriedades git
-echo "Configurando git..."
-git config --global user.name "Guilherme Carvalho"
-git config --global user.email "guilhermercarvalho512@gmail.com"
-
-# confiurar chave de acesso SSH
-#echo "Gerando chave de acesso SSH..."
-#ssh-keygen
-#echo "Copy your public key."
+echo "############################"
+echo "# Habilitando suporte TRIM #"
+echo "############################"
+sudo systemctl enable fstrim.timer
 _fim_msg
 
+echo "#####################################"
+echo "# Habilitando suporte a impressoras #"
+echo "#####################################"
+sudo systemctl enable org.cups.cupsd.service
+_fim_msg
+
+echo "####################"
+echo "# Configurando git #"
+echo "####################"
+git config --global user.name "Guilherme Carvalho"
+git config --global user.email "guilhermercarvalho512@gmail.com"
+_fim_msg
+
+echo "#############################"
+echo "# Removendo archinstal de / #"
+echo "#############################"
 sudo rm -rf archinstall
+_fim_msg
 
 echo "#########################"
 echo "# Reiniciando o sistema #"
 echo "#########################"
 _fim_msg
 reboot
-
-# sed 's:# alias zshconfig:alias zshconfig: ; s:# alias ohmyzsh:alias ohmyzsh: ; s:"mate ~\/:"vim ~\/': .zshrc
