@@ -202,4 +202,6 @@ echo "# Reinicie o sistema #"
 echo "######################"
 _fim_msg
 
+su ${USUARIO}
+
 exit 0
