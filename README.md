@@ -39,7 +39,7 @@ loadkeys i386/qwerty/br-abnt2.map.gz
 ```
 
 ```bash
-yes n | pacamn -Syyuu
+yes n | pacman -Syyuu
 ```
 
 ```bash
