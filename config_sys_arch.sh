@@ -15,6 +15,8 @@
 #
 #   v1.0 2019-10-21, Guilherme Carvalho:
 #       - Versão inicial do programa
+#   v1.1 2020-1-24, Guilherme Carvalho:
+#       - Refatoração de código
 #
 #
 # Licença: -
@@ -30,6 +32,7 @@
 #       $IDIOMA_TECLADO     Keymap utilizado, padrão "br-abnt2").
 #       $TIMEZONE           Configura fuso, padrão "Sao_Paulo".
 #       $NOME_HOST          Nome da máquina.
+#       $USUARIO            Usuário do sistema
 # 
 # --------------------------------------------------------------------------------------
 # Configuração
@@ -62,146 +65,66 @@ BOOT_LEGACY=0
 
 # Dispotivo
 DEV=''
-#
-#
-#######################################################################################
-#
-#                                   Funções
-#                                   -------
-#
-_fim_msg() {
-    echo
-    echo '-------------------------------------------------------------------------------'
-    echo
-    sleep 2
-}
 
-_espera_confimacao() {
-    echo "Continuar?"
-    read
-}
-_efi_system() {
-    # Configurando systemd-boot
-    bootctl --path=/boot install
-    echo -e "default  arch\n#timeout  3\nconsole-mode max\neditor   no" > /boot/loader/loader.conf
-    echo -e "title   Arch Linux\nlinux   /vmlinuz-linux\ninitrd  /intel-ucode.img\ninitrd  /initramfs-linux.img\noptions root=PARTUUID=$(blkid /dev/sd${DEV}2 | sed "s/.*PARTUUID=//g" | cut -d\" -f2) rw" > /boot/loader/entries/arch.conf
-}
-
-_legacy_system() {
-    # Configura gerenciador de boot do sistema
-    echo "Configure o boot da máquina"
-    pacman -S grub os-prober --noconfirm
-    grub-install /dev/sd${DEV}
-    grub-mkconfig -o /boot/grub/grub.cfg
-}
-#
-#
 #######################################################################################
 #
 #                           Início Configuração do Sistema
 #                           ------ ------------ -- -------
 #
-# Define tipo de boot disponível (UEFI ou Legacy)
-echo "##########################################"
-echo "# Tipo de boot disponível para o sistema #"
-echo "##########################################"
-_fim_msg
-if [ -d /sys/firmware/efi/efivars ]; then
-    echo "###################"
-    printf "%s\n" "# UEFI ${grn}disponível${end} #"
-    echo "###################"
-    BOOT_EFI=1
-else
-    echo "####################################"
-    printf "%s\n" "# UEFI ${red}indisponível${end}, usando ${yel}LEGACY${end} #"
-    echo "####################################"
-    BOOT_LEGACY=1
-fi
-_fim_msg
-
-# Define fuso horário
-echo "#####################"
-echo "# Definindo horário #"
-echo "#####################"
+echo "Definindo timezone"
 ln -sf "${TIMEZONE}" /etc/localtime # São Paulo por padrão
 hwclock --systohc --utc
-_fim_msg
 
-# Define idioma do sistema e do teclado
-echo "##################################"
-echo "# Definindo localização e idioma #"
-echo "##################################"
+echo "Definindo layout do teclado"
 sed -i 's/#pt_BR.UTF-8 UTF-8/pt_BR.UTF-8 UTF-8/g;s/#pt_BR ISO-8859-1/pt_BR ISO-8859-1/g' /etc/locale.gen
 locale-gen
 echo "LANG=pt_BR.UTF-8" >> /etc/locale.conf
 export LANG=pt_BR.UTF-8
-echo "KEYMAP="${IDIOMA_TECLADO}"" >> /etc/vconsole.conf
-_fim_msg
 
-# Configura etc/hostname
-echo "###############################"
-echo "# Configurando hosts e resolv #"
-echo "###############################"
+echo "Definindo idioma"
+echo "KEYMAP="${IDIOMA_TECLADO}"" >> /etc/vconsole.conf
+
+echo "Configurando hosts e resolv"
 echo "$NOME_HOST" >> /etc/hostname
 echo -e "127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t"${NOME_HOST}".localdomain "${NOME_HOST}"" >> /etc/hosts
 echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" > /etc/resolv.conf
-_fim_msg
 
-# Atualizando pacman e instalando reflector
-echo "########################"
-echo "# Instalando reflector #"
-echo "########################"
-pacman -Syyuu
-pacman -S reflector --noconfirm
-_fim_msg
+echo "Instalando reflector"
+yes no | pacman -Syyuuq
+pacman -Sq reflector --noconfirm
 
-echo "####################################"
-echo "# Procurando por melhores espelhos #"
-echo "####################################"
-reflector --country Brazil --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-pacman -Syyuu --noconfirm
-_fim_msg
+echo "Encontrando espelhos do pacman mais recentes no Brasil"
+reflector --country Brazil --age 12 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
+pacman -Syyuuq --noconfirm
 
-# Define senha de root
-echo "#########################"
-echo "# Definir senha de root #"
-echo "#########################"
+echo "Defina a senha de root"
 passwd
 
-# Cria usuário sudo
-echo "##############################"
-echo "# Criando usuário ${USUARIO} #"
-echo "##############################"
+echo "Criando usuário ${USUARIO}"
 useradd -m -G wheel -s /bin/bash ${USUARIO}
 passwd ${USUARIO}
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
-_fim_msg
-
-echo "##############################"
-echo "# Habilitando dhcpcd.service #"
-echo "##############################"
-systemctl enable dhcpcd.service
-_fim_msg
 
 fdisk -l
-_fim_msg
+sleep 5
 
 echo "Selecione o seu dispositivo:"
 read DEV
-_fim_msg
 
-if [ ${BOOT_EFI} -eq 1 ]; then
-    _efi_system
-elif [ ${BOOT_LEGACY} -eq 1 ]; then
-    _legacy_system
+echo "Configurando boot do sistema"
+if [ -d /sys/firmware/efi/efivars ]; then
+    # Configurando systemd-boot
+    bootctl --path=/boot install
+    echo -e "default  arch\n#timeout  3\nconsole-mode max\neditor   no" > /boot/loader/loader.conf
+    echo -e "title   Arch Linux\nlinux   /vmlinuz-linux\ninitrd  /intel-ucode.img\ninitrd  /initramfs-linux.img\noptions root=PARTUUID=$(blkid /dev/sd${DEV}2 | sed "s/.*PARTUUID=//g" | cut -d\" -f2) rw" > /boot/loader/entries/arch.conf
+else
+    # "Configurando grub"
+    pacman -Sq grub os-prober --noconfirm
+    grub-install /dev/sd${DEV}
+    grub-mkconfig -o /boot/grub/grub.cfg
 fi
-_fim_msg
 
-echo "######################"
-echo "# Reinicie o sistema #"
-echo "######################"
-_fim_msg
-
-su ${USUARIO}
+echo "Iniciando Post Install Arch..."
+su -c "sh /archinstall/post_install_arch.sh" ${USUARIO}
 
 exit 0
