@@ -16,23 +16,47 @@
 #
 #   v1.0 2019-08-01, Guilherme Carvalho:
 #       - Versão inicial do programa
+#   v1.1 2020-1-24, Guilherme Carvalho:
+#       - Refatoração de código
 #
 #
 # Licença: -
 #
 #######################################################################################
 #
-#                                          Funções
-#                                          -------
+#                                       Pacotes Pacman
+#                                       ------- ------
 #
-_fim_msg() {
-    echo
-    echo '-------------------------------------------------------------------------------'
-    echo
-    sleep 2
+GRAPHC_PKG="xorg xorg-xinit intel-gmmlib intel-media-driver intel-media-sdk intel-tbb intel-ucode mesa lib32-mesa vulkan-intel xdg-user-dirs"
+MY_PKG="android-tools bash-completion cmatrix discord git gparted keepassxc obs-studio qbittorrent speedtest-cli steam vlc"
+REDE_PKG="networkmanager net-tools ufw"
+IMPRESSORA_PKG="cups cups-filters"
+BLUETOOTH_PKG="bluez bluez-libs bluez-qt bluez-utils"
+NAVEGADOR_PKG="chromium firefox firefox-i18n-pt-br"
+SISTEMA_PKG="htop neofetch"
+IMAGEM_PKG="gpick gimp inkscape"
+JAVA_PKG="jdk8-openjdk openjdk-doc openjdk-src openjdk8-doc openjdk8-src"
+EMU_PKG="wine virtualbox virtualbox-host-dkms"
+COMPRIME_EXTRAI_PKG="p7zip unrar tar"
+AUDIO_PKG="alsa-lib alsa-utils alsa-oss pulseaudio pulseaudio-alsa pulseaudio pulseaudio-alsa sox"
+OFFICE_PKG="libreoffice-fresh libreoffice-fresh-pt-br"
+AUDIO_PKG="alsa-lib alsa-oss alsa-plugins alsa-topology-conf alsa-ucm-conf alsa-utils"
+DOCKER_PKG="docker docker-compose"
+#
+#
+#######################################################################################
+#
+#                                           Funções
+#                                           -------
+#
+_yay_install() {
+    git clone https://aur.archlinux.org/yay.git
+    cd yay && makepkg -si
+    cd ${HOME}
+    rm -rf yay/
+    yay -Syyuu --noconfirm
 }
-#
-#
+
 #######################################################################################
 #
 #                                     Menssagem
@@ -59,7 +83,6 @@ echo "#                                                          #"
 echo "# Bem-Vindo a Pós-Configuração da Instalação do Arch Linux #"
 echo "#                                                          #"
 echo "############################################################"
-_fim_msg
 #
 #
 #######################################################################################
@@ -67,77 +90,56 @@ _fim_msg
 #                               Início Pós-Instalação
 #                               ------ --------------
 #
-echo "#################################"
-echo "# Habilitando aplicações 32-bit #"
-echo "#################################"
+echo "Habilitando aplicações 32-bit nos repositórios pacman"
 sudo sed -zi 's/#\[multilib\]\n#Include = \/etc\/pacman.d\/mirrorlist/\[multilib\]\nInclude = \/etc\/pacman.d\/mirrorlist/g' /etc/pacman.conf
 
 # Instala interface gráfica
-echo "####################################################################"
-echo "# Selecione a interface gráfica a ser instalada (Apenas o número): #"
-echo "#            1)GNOME                      2)KDE                    #"
-echo "####################################################################"
-echo
+cat << EOF
+Selecione a interface gráfica a ser instalada (Apenas o número):
+            1)GNOME         2)KDE           3)XFCE
+
+EOF
 read -p "Interface: " interface
 
-sudo pacman -Syyuu xorg xorg-xinit intel-media-driver mesa lib32-mesa vulkan-intel --noconfirm
+sudo pacman -Syyuuq  ${GRAPHC_PKG} --needed --noconfirm
 
 case "${interface}" in
     1)
-        sudo pacman -S gnome gnome-extra gnome-shell-extensions gnome-power-manager --noconfirm
+        sudo pacman -Sq gnome gnome-extra gnome-shell-extensions gnome-power-manager --needed --noconfirm
         ;;
     2)
-        sudo pacman -S plasma sddm --noconfirm
-        echo -e "4 5 13 14 17 18 19 20 21 24 25 31 32 36 38 45 49 50 52 53 54 59 60 63 71 77 78 86 105 121 137 144 147 149\nS" | sudo pacman -S kde-applications
-        sudo pacman -S kdeplasma-addons plasma-nm plasma-pa breeze-gtk breeze-kde4 kde-gtk-config cups powerdevil baloo kdeconnect colord-kde ttf-dejavu ttf-liberation --noconfirm
+        sudo pacman -Sq plasma sddm --needed --noconfirm
+        echo -e "4 5 13 14 17 18 19 20 21 24 25 31 32 36 38 45 49 50 52 53 54 59 60 63 71 77 78 86 105 121 137 144 147 149\nS" | sudo pacman -Sq kde-applications
+        sudo pacman -S kdeplasma-addons plasma-nm plasma-pa breeze-gtk breeze-kde4 kde-gtk-config cups powerdevil baloo kdeconnect colord-kde ttf-dejavu ttf-liberation --needed --noconfirm
         echo "exec startkde" > ~/.xinitrc
         ;;
 esac
-_fim_msg
 
-echo "########################"
-echo "# Instalando YAY (AUR) #"
-echo "########################"
-git clone https://aur.archlinux.org/yay.git
-cd yay && makepkg -si
-cd ${HOME}
-rm -rf yay/
-yay -Syyuu --noconfirm
-_fim_msg
+echo "Instalando alguns pacotes através do pacman"
+sudo pacman -Sq ${MY_PKG} ${REDE_PKG} ${IMPRESSORA_PKG} ${BLUETOOTH_PKG} ${NAVEGADOR_PKG} ${SISTEMA_PKG} ${IMAGEM_PKG} ${JAVA_PKG} ${EMU_PKG} ${COMPRIME_EXTRAI_PKG} ${AUDIO_PKG} ${OFFICE_PKG} ${AUDIO_PKG} ${DOCKER_PKG} --needed --noconfirm
 
-echo "############################"
-echo "# Minhas aplicações PACMAN #"
-echo "############################"
-sudo pacman -S android-tools networkmanager bluez-utils chromium cmatrix cups discord firefox firefox-i18n-pt-br gparted gpick gimp htop inkscape jdk8-openjdk keepassxc libreoffice-fresh libreoffice-fresh-pt-br neofetch obs-studio openjdk-doc openjdk-src openjdk8-doc openjdk8-src p7zip unrar tar sox steam speedtest-cli wine vlc virtualbox qbittorrent --noconfirm
-_fim_msg
-
-echo "#########################"
-echo "# Minhas aplicações AUR #"
-echo "#########################"
-yay -S codecs64 dropbox megasync pamac-aur skypeforlinux-stable-bin stremio-beta visual-studio-code-bin --noconfirm
-_fim_msg
-
-echo "###############################"
-echo "# Instalando plugins de audio #"
-echo "###############################"
-sudo pacman -S alsa-lib alsa-utils alsa-oss pulseaudio pulseaudio-alsa --noconfirm
-_fim_msg
-
-echo "###########################"
-echo "# Instalando Sublime Text #"
-echo "###########################"
+echo "Instalando Sublime Text"
 curl -O https://download.sublimetext.com/sublimehq-pub.gpg && sudo pacman-key --add sublimehq-pub.gpg && sudo pacman-key --lsign-key 8A8F901A && rm sublimehq-pub.gpg
 echo -e "\n[sublime-text]\nServer = https://download.sublimetext.com/arch/stable/x86_64" | sudo tee -a /etc/pacman.conf
-sudo pacman -Syu sublime-text --noconfirm
-_fim_msg
+sudo pacman -Syuq sublime-text --noconfirm
 
-echo "##################################"
-echo "# Habilitando suporte a Internet #"
-echo "##################################"
-sudo systemctl disable dhcpcd.service
+echo "Instalando YAY (AUR)"
+_yay_install
+
+echo "Verificando instalação do yay"
+yay --version
+if [$? -eq 0]; then
+    echo "Instalando alguns pacotes através do pacman"
+    yay -Sq codecs64 dropbox megasync pamac-aur skypeforlinux-stable-bin stremio-beta visual-studio-code-bin --needed --noconfirm
+else
+    echo -e "Instalção yay mal sucedida :(\n"
+fi
+
+echo "Habilitando serviços de rede"
 sudo systemctl enable NetworkManager.service
+sudo systemctl enable ufw.service
 
-# Ativando gerenciador de login e internet para Gnome
+echo "Habilitando gerenciador de login"
 case "${interface}" in
     1)
         sudo systemctl enable gdm.service
@@ -149,38 +151,22 @@ case "${interface}" in
         ;;
 esac
 
-echo "############################"
-echo "# Habilitando suporte TRIM #"
-echo "############################"
+echo "Habilitando suporte TRIM"
 sudo systemctl enable fstrim.timer
-_fim_msg
 
-echo "#########################"
-echo "# Habilitando Bluetooth #"
-echo "#########################"
+echo "Habilitando Bluetooth"
 sudo systemctl enable bluetooth.service
 
-echo "#####################################"
-echo "# Habilitando suporte a impressoras #"
-echo "#####################################"
+echo "Habilitando suporte a impressoras"
 sudo systemctl enable org.cups.cupsd.service
-_fim_msg
 
-echo "####################"
-echo "# Configurando git #"
-echo "####################"
+echo "Configurando git"
 git config --global user.name "Guilherme Carvalho"
 git config --global user.email "guilhermercarvalho512@gmail.com"
-_fim_msg
 
-echo "#############################"
-echo "# Removendo archinstal de / #"
-echo "#############################"
+echo "Removendo pasta archinstall"
 sudo rm -rf /archinstall
-_fim_msg
 
-echo "#########################"
-echo "# Reiniciando o sistema #"
-echo "#########################"
-_fim_msg
-reboot
+echo "Instalação finalizada, por favor, reinicie a máquina"
+
+exit 0
