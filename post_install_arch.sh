@@ -28,20 +28,19 @@
 #                                       ------- ------
 #
 GRAPHC_PKG="xorg xorg-xinit intel-gmmlib intel-media-driver intel-media-sdk intel-tbb intel-ucode mesa lib32-mesa vulkan-intel xdg-user-dirs"
-MY_PKG="android-tools bash-completion cmatrix discord git gparted keepassxc obs-studio qbittorrent speedtest-cli steam vlc"
-REDE_PKG="networkmanager net-tools ufw"
-IMPRESSORA_PKG="cups cups-filters"
-BLUETOOTH_PKG="bluez bluez-libs bluez-qt bluez-utils"
-NAVEGADOR_PKG="chromium firefox firefox-i18n-pt-br"
-SISTEMA_PKG="htop neofetch"
-IMAGEM_PKG="gpick gimp inkscape"
-JAVA_PKG="jdk8-openjdk openjdk-doc openjdk-src openjdk8-doc openjdk8-src"
-EMU_PKG="wine virtualbox virtualbox-host-dkms"
-COMPRIME_EXTRAI_PKG="p7zip unrar tar"
-AUDIO_PKG="alsa-lib alsa-utils alsa-oss pulseaudio pulseaudio-alsa pulseaudio pulseaudio-alsa sox"
-OFFICE_PKG="libreoffice-fresh libreoffice-fresh-pt-br"
-AUDIO_PKG="alsa-lib alsa-oss alsa-plugins alsa-topology-conf alsa-ucm-conf alsa-utils"
-DOCKER_PKG="docker docker-compose"
+#MY_PKG="android-tools bash-completion cmatrix discord git gparted keepassxc obs-studio qbittorrent speedtest-cli steam vlc"
+#REDE_PKG="networkmanager net-tools ufw"
+#IMPRESSORA_PKG="cups cups-filters"
+#BLUETOOTH_PKG="bluez bluez-utils"
+#NAVEGADOR_PKG="chromium firefox firefox-i18n-pt-br"
+#SISTEMA_PKG="htop neofetch"
+#IMAGEM_PKG="gpick gimp inkscape"
+#JAVA_PKG="jdk8-openjdk openjdk-doc openjdk-src openjdk8-doc openjdk8-src"
+#EMU_PKG="wine virtualbox virtualbox-host-dkms"
+#COMPRIME_EXTRAI_PKG="p7zip unrar tar"
+#AUDIO_PKG="alsa-lib alsa-utils alsa-oss pulseaudio pulseaudio-alsa sox"
+#OFFICE_PKG="libreoffice-fresh libreoffice-fresh-pt-br"
+#DOCKER_PKG="docker docker-compose"
 #
 #
 #######################################################################################
@@ -50,6 +49,7 @@ DOCKER_PKG="docker docker-compose"
 #                                           -------
 #
 _yay_install() {
+    cd ${HOME}
     git clone https://aur.archlinux.org/yay.git
     cd yay && makepkg -si
     cd ${HOME}
@@ -116,7 +116,8 @@ case "${interface}" in
 esac
 
 echo "Instalando alguns pacotes através do pacman"
-sudo pacman -Sq ${MY_PKG} ${REDE_PKG} ${IMPRESSORA_PKG} ${BLUETOOTH_PKG} ${NAVEGADOR_PKG} ${SISTEMA_PKG} ${IMAGEM_PKG} ${JAVA_PKG} ${EMU_PKG} ${COMPRIME_EXTRAI_PKG} ${AUDIO_PKG} ${OFFICE_PKG} ${AUDIO_PKG} ${DOCKER_PKG} --needed --noconfirm
+#sudo pacman -Sq ${MY_PKG} ${REDE_PKG} ${IMPRESSORA_PKG} ${BLUETOOTH_PKG} ${NAVEGADOR_PKG} ${SISTEMA_PKG} ${IMAGEM_PKG} ${JAVA_PKG} ${EMU_PKG} ${COMPRIME_EXTRAI_PKG} ${AUDIO_PKG} ${OFFICE_PKG} ${AUDIO_PKG} ${DOCKER_PKG} --needed --noconfirm
+sudo pacman -S --needed --noconfirm - < /archinstall/packages.txt
 
 echo "Instalando Sublime Text"
 curl -O https://download.sublimetext.com/sublimehq-pub.gpg && sudo pacman-key --add sublimehq-pub.gpg && sudo pacman-key --lsign-key 8A8F901A && rm sublimehq-pub.gpg
@@ -165,7 +166,7 @@ git config --global user.name "Guilherme Carvalho"
 git config --global user.email "guilhermercarvalho512@gmail.com"
 
 echo "Removendo pasta archinstall"
-sudo rm -rf /archinstall
+#sudo rm -rf /archinstall
 
 echo "Instalação finalizada, por favor, reinicie a máquina"
 

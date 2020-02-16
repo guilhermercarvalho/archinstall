@@ -1,24 +1,21 @@
+
 #!/usr/bin/env bash
 #
-# archinstall.sh - Instala e Configura o Arch Linux
+# pre_install_arch.sh - Pre-Instalação do Arch Linux
 #
 # Site  : https://github.com/guilhermercarvalho/archinstall
 # Autor : Guilherme Carvalho <guilhermercarvalho512@gmail.com>
 #
 # -------------------------------------------------------------------------------------
 #
-#  Este programa executa a instalação e a configuração do Arch Linux em seu sistema com
-# interação mínima do usuário
+# Este programa executa a pré-instalção do Arch Linux em seu sistema
 #
 # -------------------------------------------------------------------------------------
 #
 # Histórico:
 #
-#   v1.1 2020-1-24, Guilherme Carvalho:
-#       - Refatoração de código
-#       - Particionamento dinâmico
-#       - Descrição detalhada
-#       - Opções adicionadas
+#   v1.0 2019-10-21, Guilherme Carvalho:
+#       - Versão inicial do programa
 #
 #
 # Licença: -
@@ -26,21 +23,11 @@
 #
 #######################################################################################
 #
-#                                     Configuração
-#                                     ------------
-#
-# Configuração das variáveis de ambiente
-#
-#       $IDIOMA_TECLADO     Keymap utilizado, padrão "br-abnt2".
-#       $TIMEZONE           Configura fuso, padrão "Sao_Paulo".
-#       $NOME_HOST          Nome da máquina.
-#
-# 
 #                                  Tipo de Boot
 #                                  ---- -- ----
 #       $BOOT_EFI          Suporte para boot do tipo UEFI
-#       $BOOT_LEGACY       Suporte para boot do tipo LEGACY
-# 
+#       $BOOT_LEGACY        Suporte para boot do tipo LEGACY
+#
 # --------------------------------------------------------------------------------------
 #
 #                               Cores para exibição
@@ -75,11 +62,8 @@ mag=$'\e[1;35m'
 cyn=$'\e[1;36m'
 end=$'\e[0m'
 
-# Dispositivo /dev/sdX
+# Dispositivo
 DEV=''
-
-# Pacotes pacman
-INSTALL_PKG="linux linux-api-headers linux-firmware intel-ucode util-linux"
 #
 #
 #######################################################################################
@@ -93,6 +77,13 @@ _ler_resposta() {
     else
         return -1
     fi
+}
+
+_fim_msg() {
+    echo
+    echo '-------------------------------------------------------------------------------'
+    echo
+    sleep 2
 }
 
 _ping_internet() {
@@ -110,17 +101,6 @@ _ping_internet() {
     fi
 }
 
-_tipo_boot() {
-    printf "Tipo de boot do sistema: "
-    if [ -d /sys/firmware/efi/efivars ]; then
-        BOOT_EFI=1
-        printf "${grn_full}" "UEFI\n"
-    else
-        BOOT_LEGACY=1
-        printf "${yel_full}" "LEGACY\n"
-    fi
-}
-
 _efi_system() {
     # Formatar partições
     read -p "/dev/sd${DEV}1: EFI System?[S/n]" resposta
@@ -128,12 +108,14 @@ _efi_system() {
     if [ $? -eq 0 ]; then
         mkfs.fat -F32 /dev/sd${DEV}1
     fi
+    _fim_msg
 
     read -p "/dev/sd${DEV}2: Linux filesystem?[S/n]" resposta
     _ler_resposta
     if [ $? -eq 0 ]; then
         mkfs.ext4 /dev/sd${DEV}2
     fi
+    _fim_msg
 
     # Montar sistema
     echo "################################"
@@ -151,6 +133,7 @@ _legacy_system() {
     if [ $? -eq 0 ]; then
         mkfs.ext4 /dev/sd${DEV}1
     fi
+    _fim_msg
 
     # Montar sistema
     echo "###################################"
@@ -165,15 +148,15 @@ _legacy_system() {
 #                                     Menssagem
 #                                     ---------
 #
-echo '--------------------------------------------------------------------'
-echo '    ___              __       ____           __        ____'
-echo '   /   |  __________/ /_     /  _/___  _____/ /_____ _/ / /'
-echo '  / /| | / ___/ ___/ __ \    / // __ \/ ___/ __/ __ `/ / / '
-echo ' / ___ |/ /  / /__/ / / /  _/ // / / (__  ) /_/ /_/ / / /  '
-echo '/_/  |_/_/   \___/_/ /_/  /___/_/ /_/____/\__/\__,_/_/_/   '
-echo '                                                           '
-echo '      Por Guilherme Carvalho - https://github.com/guilhermercarvalho'
-echo '--------------------------------------------------------------------'
+echo '-------------------------------------------------------------------------------'
+echo '     ____               ____           __        ____   ___              __    '
+echo '    / __ \________     /  _/___  _____/ /_____ _/ / /  /   |  __________/ /_   '
+echo '   / /_/ / ___/ _ \    / // __ \/ ___/ __/ __ `/ / /  / /| | / ___/ ___/ __ \  '
+echo '  / ____/ /  /  __/  _/ // / / (__  ) /_/ /_/ / / /  / ___ |/ /  / /__/ / / /  '
+echo ' /_/   /_/   \___/  /___/_/ /_/____/\__/\__,_/_/_/  /_/  |_/_/   \___/_/ /_/   '
+echo '                                                                               '
+echo '                 Por Guilherme Carvalho - https://github.com/guilhermercarvalho'
+echo '-------------------------------------------------------------------------------'
 echo
 #
 #
@@ -182,12 +165,12 @@ echo
 #                                Messagem de Boas-Vindas
 #                                -------- -- -----------
 #
-echo "########################################"
-echo "#                                      #"
-echo "# Bem-Vindo a Instalação do Arch Linux #"
-echo "#                                      #"
-echo "########################################"
-echo
+echo "####################################################################"
+echo "#                                                                  #"
+echo "# Bem-Vindo a Pré-Configuração Inicial de Instalação do Arch Linux #"
+echo "#                                                                  #"
+echo "####################################################################"
+_fim_msg
 #
 #
 #######################################################################################
@@ -195,62 +178,79 @@ echo
 #                               Início Pré-Instalação
 #                               ------ --------------
 #
+# Define tipo de boot disponível (UEFI ou Legacy)
+if [ -d /sys/firmware/efi/efivars ]; then
+    echo "###################"
+    printf "%s\n" "# UEFI ${grn}disponível${end} #"
+    echo "###################"
+    BOOT_EFI=1
+else
+    echo "####################################"
+    printf "%s\n" "# UEFI ${red}indisponível${end}, usando ${yel}LEGACY${end} #"
+    echo "####################################"
+    BOOT_LEGACY=1
+fi
+_fim_msg
 
 # Verifica conexão com internet
 _ping_internet
 
 # Conecta uma interface à uma rede
 if [ $? -ne 0 ]; then
+    _fim_msg
     echo 'Selecione um interface de rede:'
     ip -o link show | awk -F': ' '{print $2}'
     echo
     read -p "Interface selecionada: " interface_rede
     dhcpcd "${interface_rede}"
     unset interface_rede
+    _fim_msg
 
     _ping_internet
 
     if [ $? -ne 0 ]; then
+        _fim_msg
         printf "${red_full}" "FALHA NA CONECXÃO"
         printf "${red_full}" "SAINDO DO PROGRAMA..."
         exit -1
     fi
 fi
+_fim_msg
 
 # Atualização do relógio do sistema
-echo "Atualizando relógio do sistema"
+echo "#################################"
+echo "# Relógio do sistema atualizado #"
+echo "#################################"
+_fim_msg
 timedatectl set-ntp true
-
-# Define tipo de boot disponível (UEFI ou Legacy)
-_tipo_boot
 
 # Paticionamento de disco
 echo "#############################################"
 echo "#        Particionamento de Disco           #"
 echo "#                                           #"
-echo "# UEFI (gpt)                                #"
+echo "# EFI disponível (gpt)                      #"
 echo "# /dev/sdN1: EFI partição de boot - 260 MiB #"
 echo "# /dev/sdN2: Linux filesystem - +20 GiB     #"
 echo "#                                           #"
-echo "# LEGACY (dos)                              #"
+echo "# LEGACY disponível (dos)                   #"
 echo "# /dev/sdN1: Linux filesystem - +10 GiB     #"
 echo "#                                           #"
 echo "#                            *recomendação  #"
 echo "#############################################"
+_fim_msg
 
-# Lista partições disponíveis
 fdisk -l
-sleep 5
+_fim_msg
 
-echo "Selecione o dispositivo sdX:"
+echo "Selecione o seu dispositivo:"
 read DEV
+_fim_msg
 
-printf "\nIniciando fdisk para realização do paricionamento"
 cfdisk /dev/sd${DEV}
 
 # Lista partições criadas
 fdisk -l
-sleep 5
+_fim_msg
 
 # Configurações necessárias para sistemas efi e legacy
 if [ ${BOOT_EFI} -eq 1 ]; then
@@ -258,28 +258,48 @@ if [ ${BOOT_EFI} -eq 1 ]; then
 elif [ ${BOOT_LEGACY} -eq 1 ]; then
     _legacy_system
 fi
+_fim_msg
 
 # Atualizando pacman e instalando reflector
-echo "Instalando reflector"
+echo "########################"
+echo "# Instalando reflector #"
+echo "########################"
 pacman -S reflector --noconfirm
+_fim_msg
 
-echo "Encontrando espelhos do pacman mais recentes no Brasil"
-reflector --country Brazil --age 12 --protocol http --sort rate --save /etc/pacman.d/mirrorlist
+echo "####################################"
+echo "# Procurando por melhores espelhos #"
+echo "####################################"
+reflector --country Brazil --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 yes no | pacman -Syyuu
+_fim_msg
 
-echo "Instalando arch em novo dispositivo"
-pacstrap /mnt base base-devel ${INSTALL_PKG}
+# Instalar Arch em disco
+echo "#######################################"
+echo "# Instalando arch em novo dispositivo #"
+echo "#######################################"
+pacstrap /mnt base base-devel
+_fim_msg
 
-echo "Gerendo arquivo fstab"
+# Gerendo arquivo fstab
+echo "#########################"
+echo "# Gerendo arquivo fstab #"
+echo "#########################"
 genfstab /mnt >> /mnt/etc/fstab
+_fim_msg
 
 # Exibindo arquivo fstab gerado
 cat /mnt/etc/fstab
+_fim_msg
 
-echo "Copiando archinstall para /mnt"
-cp -vr ./archinstall/ /mnt
+echo "#################################"
+echo "# Copiando archinstal para /mnt #"
+echo "#################################"
+cp -vr ./archinstall /mnt
 
-echo "Entrando em modo arch-chroot e iniciando Config Sys Arch..."
+echo "#######################"
+echo "# Comando arch-chroot #"
+echo "#######################"
 arch-chroot /mnt sh /archinstall/config_sys_arch.sh
 
 exit 0

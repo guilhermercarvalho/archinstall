@@ -125,6 +125,6 @@ else
 fi
 
 echo "Iniciando Post Install Arch..."
-su -c "sh /archinstall/post_install_arch.sh" ${USUARIO}
+sudo -u ${USUARIO} sh /archinstall/post_install_arch.sh
 
 exit 0
