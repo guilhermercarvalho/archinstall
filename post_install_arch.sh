@@ -105,13 +105,15 @@ sudo pacman -Syyuuq  ${GRAPHC_PKG} --needed --noconfirm
 
 case "${interface}" in
     1)
-        sudo pacman -Sq gnome gnome-extra gnome-shell-extensions gnome-power-manager --needed --noconfirm
+        sudo pacman -Sq gnome gnome-multi-writer sysprof gnome-usage gnome-tweaks dconf-editor gnome-code-assistance gnome-devel-docs gnome-shell-extensions gnome-power-manager --needed --noconfirm
         ;;
     2)
         sudo pacman -Sq plasma sddm --needed --noconfirm
         echo -e "4 5 13 14 17 18 19 20 21 24 25 31 32 36 38 45 49 50 52 53 54 59 60 63 71 77 78 86 105 121 137 144 147 149\nS" | sudo pacman -Sq kde-applications
         sudo pacman -S kdeplasma-addons plasma-nm plasma-pa breeze-gtk breeze-kde4 kde-gtk-config cups powerdevil baloo kdeconnect colord-kde ttf-dejavu ttf-liberation --needed --noconfirm
         echo "exec startkde" > ~/.xinitrc
+        ;;
+    *)
         ;;
 esac
 
@@ -120,7 +122,10 @@ echo "Instalando alguns pacotes através do pacman"
 sudo pacman -S --needed --noconfirm - < /archinstall/packages.txt
 
 echo "Instalando Sublime Text"
-curl -O https://download.sublimetext.com/sublimehq-pub.gpg && sudo pacman-key --add sublimehq-pub.gpg && sudo pacman-key --lsign-key 8A8F901A && rm sublimehq-pub.gpg
+curl -O https://download.sublimetext.com/sublimehq-pub.gpg
+sudo pacman-key --add sublimehq-pub.gpg
+sudo pacman-key --lsign-key 8A8F901A
+rm sublimehq-pub.gpg
 echo -e "\n[sublime-text]\nServer = https://download.sublimetext.com/arch/stable/x86_64" | sudo tee -a /etc/pacman.conf
 sudo pacman -Syuq sublime-text --noconfirm
 
@@ -131,7 +136,7 @@ echo "Verificando instalação do yay"
 yay --version
 if [$? -eq 0]; then
     echo "Instalando alguns pacotes através do pacman"
-    yay -Sq codecs64 dropbox megasync pamac-aur skypeforlinux-stable-bin stremio-beta visual-studio-code-bin --needed --noconfirm
+    yay -Sq codecs64 dropbox pamac-aur stremio-beta visual-studio-code-bin
 else
     echo -e "Instalção yay mal sucedida :(\n"
 fi
@@ -156,10 +161,13 @@ echo "Habilitando suporte TRIM"
 sudo systemctl enable fstrim.timer
 
 echo "Habilitando Bluetooth"
-sudo systemctl enable bluetooth.service
+sudo systemctl enable bluetooth
 
 echo "Habilitando suporte a impressoras"
 sudo systemctl enable org.cups.cupsd.service
+
+echo "Habilitando bluetooth audio"
+echo -e "### Enable bluetooth headphones\nload-module module-bluetooth-policy\nload-module module-bluetooth-discover" | sudo tee -a /etc/pulse/system.pa
 
 echo "Configurando git"
 git config --global user.name "Guilherme Carvalho"

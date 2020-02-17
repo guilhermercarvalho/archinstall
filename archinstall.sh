@@ -76,7 +76,7 @@ cyn=$'\e[1;36m'
 end=$'\e[0m'
 
 # Dispositivo /dev/sdX
-DEV=''
+DEV='a'
 
 # Pacotes pacman
 INSTALL_PKG="linux linux-api-headers linux-firmware intel-ucode util-linux"
@@ -243,7 +243,7 @@ fdisk -l
 sleep 5
 
 echo "Selecione o dispositivo sdX:"
-read DEV
+# read DEV
 
 printf "\nIniciando fdisk para realização do paricionamento"
 cfdisk /dev/sd${DEV}

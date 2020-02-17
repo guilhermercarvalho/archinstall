@@ -2,7 +2,7 @@ alsa-oss
 alsa-utils
 android-tools
 bash-completion
-bluez bluez-utils
+bluez
 bluez-utils
 chromium
 cmatrix
@@ -15,6 +15,7 @@ firefox
 firefox-i18n-pt-br
 gimp
 git
+go
 gparted
 gpick
 gzip
